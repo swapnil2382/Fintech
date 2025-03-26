@@ -39,6 +39,12 @@ const Home = () => {
               >
                 Tax Overview
               </Link>
+              <Link
+                to="/income"
+                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
+              >
+                income
+              </Link>
               <button
                 onClick={logout}
                 className="bg-red-500 text-white px-4 py-2 rounded"

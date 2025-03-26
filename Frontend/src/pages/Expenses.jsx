@@ -1,19 +1,34 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Bar, Pie } from "react-chartjs-2";
-import "chart.js/auto";
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [remainingBudget, setRemainingBudget] = useState(0);
   const [formData, setFormData] = useState({ amount: "", category: "", description: "" });
-  const [summary, setSummary] = useState(null);
 
   useEffect(() => {
+    fetchTotalIncome();
     fetchExpenses();
-    fetchSummary();
   }, []);
 
-  // Fetch Expenses
+  // ✅ Fetch Total Income
+  const fetchTotalIncome = async () => {
+    try {
+      const { data } = await axios.get("http://localhost:5000/api/income/total", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const income = data.totalIncome ? data.totalIncome * 0.9 : 0; // Assuming 90% is used as net income
+      setTotalIncome(income);
+      setRemainingBudget(income); // Set Remaining Budget to match Total Income
+    } catch (error) {
+      console.error("Error fetching total income", error);
+      setTotalIncome(0);
+      setRemainingBudget(0);
+    }
+  };
+
+  // ✅ Fetch Expenses
   const fetchExpenses = async () => {
     try {
       const { data } = await axios.get("http://localhost:5000/api/expenses", {
@@ -22,63 +37,70 @@ const Expenses = () => {
       setExpenses(data);
     } catch (error) {
       console.error("Error fetching expenses", error);
+      setExpenses([]);
     }
   };
 
-  // Fetch Summary
-  const fetchSummary = async () => {
-    try {
-      const { data } = await axios.get("http://localhost:5000/api/expenses/summary", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      setSummary(data);
-    } catch (error) {
-      console.error("Error fetching summary", error);
-    }
-  };
-
-  // Add Expense
+  // ✅ Add Expense
   const addExpense = async (e) => {
     e.preventDefault();
+  
+    const expenseAmount = parseFloat(formData.amount);  // Make sure it's a number
+  
+    if (!formData.amount || !formData.category || !formData.description) {
+      alert("All fields are required.");
+      return;
+    }
+  
+    console.log("Sending expense data:", { ...formData, amount: expenseAmount });  // Log the request data
+  
     try {
-      const { data } = await axios.post("http://localhost:5000/api/expenses", formData, {
+      const { data } = await axios.post("http://localhost:5000/api/expenses", { 
+        ...formData, 
+        amount: expenseAmount,  // Send the amount as a number
+      }, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      setExpenses([...expenses, data]); // Update the list with new expense
-      setFormData({ amount: "", category: "", description: "" });
-      fetchSummary(); // Refresh summary after adding
+  
+      setRemainingBudget((prevBudget) => prevBudget - expenseAmount); // Deduct expense from remaining budget
+      setExpenses([...expenses, data.expense]); // Add new expense to the list
+      setFormData({ amount: "", category: "", description: "" }); // Reset form data
+  
     } catch (error) {
       console.error("Error adding expense", error);
     }
   };
-
-  // Delete Expense
-  const deleteExpense = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/expenses/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      setExpenses(expenses.filter(exp => exp._id !== id));
-      fetchSummary(); // Refresh summary after deleting
-    } catch (error) {
-      console.error("Error deleting expense", error);
-    }
-  };
-
-  // Handle Input Change
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  
+  
 
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">Manage Expenses</h2>
 
-      {/* Add Expense Form */}
+      {/* ✅ Budget Overview */}
+      <div className="bg-gray-100 p-4 mb-4 rounded">
+        <h3 className="text-lg font-semibold">This Month Budget: ₹{(totalIncome || 0).toFixed(2)}</h3>
+        <h3 className="text-lg font-semibold text-red-500">Remaining Budget: ₹{(remainingBudget || 0).toFixed(2)}</h3>
+      </div>
+
+      {/* ✅ Expense Form */}
       <form onSubmit={addExpense} className="mb-4 flex gap-2">
-        <input type="number" name="amount" placeholder="Amount (₹)" onChange={handleChange} value={formData.amount} required className="border p-2" />
-        
-        <select name="category" onChange={handleChange} value={formData.category} required className="border p-2">
+        <input
+          type="number"
+          name="amount"
+          placeholder="Amount (₹)"
+          onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+          value={formData.amount}
+          required
+          className="border p-2"
+        />
+        <select
+          name="category"
+          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+          value={formData.category}
+          required
+          className="border p-2"
+        >
           <option value="">Select Category</option>
           <option value="Food">Food</option>
           <option value="Transport">Transport</option>
@@ -87,69 +109,42 @@ const Expenses = () => {
           <option value="Rent">Rent</option>
           <option value="Others">Others</option>
         </select>
-
-        <input type="text" name="description" placeholder="Description" onChange={handleChange} value={formData.description} required className="border p-2" />
+        <input
+          type="text"
+          name="description"
+          placeholder="Description"
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          value={formData.description}
+          required
+          className="border p-2"
+        />
         <button type="submit" className="bg-green-500 text-white px-4 py-2">Add</button>
       </form>
 
-      {/* Expenses List */}
-      <ul className="bg-white p-4 rounded shadow">
-        {expenses.length === 0 ? <p>No expenses yet</p> : expenses.map((exp) => (
-          <li key={exp._id} className="flex justify-between p-2 border-b">
-            <span>{exp.category} - ₹{exp.amount} ({exp.description})</span>
-            <button onClick={() => deleteExpense(exp._id)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-          </li>
-        ))}
-      </ul>
-
-      {/* Financial Overview */}
-      <div className="mt-6">
-        <h2 className="text-2xl font-bold mb-4">Financial Overview</h2>
-        {summary ? (
-          <div>
-            <h3 className="text-xl font-semibold">Total Spent: ₹{summary.totalSpent}</h3>
-
-            {/* Category Breakdown */}
-            <div className="mt-4">
-              <h3 className="text-lg font-semibold">Category-wise Spending</h3>
-              <Pie
-                data={{
-                  labels: Object.keys(summary.categoryBreakdown),
-                  datasets: [
-                    {
-                      data: Object.values(summary.categoryBreakdown),
-                      backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff"],
-                    },
-                  ],
-                }}
-              />
-            </div>
-
-            {/* Monthly Spending */}
-            <div className="mt-4">
-              <h3 className="text-lg font-semibold">Monthly Spending Trend</h3>
-              <Bar
-                data={{
-                  labels: Object.keys(summary.monthlySpending),
-                  datasets: [
-                    {
-                      label: "₹ Spent",
-                      data: Object.values(summary.monthlySpending),
-                      backgroundColor: "#36a2eb",
-                    },
-                  ],
-                }}
-              />
-            </div>
-
-            {/* Smart Budget Suggestion */}
-            <div className="mt-4 p-4 bg-yellow-100 rounded-lg">
-              <h3 className="text-lg font-semibold">Budget Tip:</h3>
-              <p>{summary.budgetAdvice}</p>
-            </div>
-          </div>
+      {/* ✅ Expense History */}
+      <div className="bg-white p-4 rounded shadow">
+        <h3 className="text-lg font-semibold mb-2">Expense History</h3>
+        {expenses.length === 0 ? (
+          <p>No expenses yet</p>
         ) : (
-          <p>Loading financial summary...</p>
+          <table className="w-full border-collapse border border-gray-200">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border p-2">Category</th>
+                <th className="border p-2">Amount (₹)</th>
+                <th className="border p-2">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {expenses.map((exp) => (
+                <tr key={exp._id} className="border-b">
+                  <td className="border p-2">{exp.category}</td>
+                  <td className="border p-2">₹{exp.amount}</td>
+                  <td className="border p-2">{exp.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>
