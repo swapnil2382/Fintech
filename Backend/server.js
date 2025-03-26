@@ -6,6 +6,8 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
+const budgetRoutes = require("./routes/budgetRoutes");
+const taxRoutes = require("./routes/taxRoutes");
 
 dotenv.config();
 const app = express();
@@ -18,9 +20,12 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/income", incomeRoutes);
+app.use("/api/budgets", budgetRoutes); // Add this line
+app.use("/api/tax", taxRoutes);
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log(err));
 

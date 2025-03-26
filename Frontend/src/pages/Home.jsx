@@ -14,26 +14,59 @@ const Home = () => {
       <div className="bg-white p-6 rounded-lg shadow-lg text-center">
         {user ? (
           <>
-            <h1 className="text-2xl font-bold mb-4">Welcome, {user.name}! 🎉</h1>
-            <p className="mb-4">Manage your finances efficiently with AI-powered insights.</p>
+            <h1 className="text-2xl font-bold mb-4">
+              Welcome, {user.name}! 🎉
+            </h1>
+            <p className="mb-4">
+              Manage your finances efficiently with AI-powered insights.
+            </p>
             <div className="flex gap-4">
-              <Link to="/expenses" className="bg-blue-500 text-white px-4 py-2 rounded">
+              <Link
+                to="/expenses"
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
                 Go to Expenses
               </Link>
-              <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded">
+              <Link
+                to="/budget"
+                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
+              >
+                Manage Budget
+              </Link>
+              <Link
+                to="/tax"
+                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
+              >
+                Tax Overview
+              </Link>
+              <button
+                onClick={logout}
+                className="bg-red-500 text-white px-4 py-2 rounded"
+              >
                 Logout
               </button>
             </div>
           </>
         ) : (
           <>
-            <h1 className="text-2xl font-bold mb-4">Welcome to AI Accountant App</h1>
-            <p className="mb-4">Track your expenses, get AI-powered insights, and manage your finances easily.</p>
+            <h1 className="text-2xl font-bold mb-4">
+              Welcome to AI Accountant App
+            </h1>
+            <p className="mb-4">
+              Track your expenses, get AI-powered insights, and manage your
+              finances easily.
+            </p>
             <div className="flex gap-4">
-              <Link to="/login" className="bg-green-500 text-white px-4 py-2 rounded">
+              <Link
+                to="/login"
+                className="bg-green-500 text-white px-4 py-2 rounded"
+              >
                 Login
               </Link>
-              <Link to="/register" className="bg-blue-500 text-white px-4 py-2 rounded">
+              <Link
+                to="/register"
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
                 Register
               </Link>
             </div>
