@@ -3,18 +3,19 @@ const BankAccount = require("../models/BankAccount");
 const Transaction = require("../models/Transaction");
 const Notification = require("../models/Notification");
 const User = require("../models/User");
-const { authMiddleware } = require("../middleware/authMiddleware");
+const Stock = require("../models/Stock"); // Import the new Stock model
+const  authMiddleware  = require("../middleware/authMiddleware");
 const { detectAnomalies, analyzeBehavior } = require("../utils/fraudDetection");
 const nodemailer = require("nodemailer");
 
 const router = express.Router();
 
-// Email transporter setup using Ethereal (no 2-step verification required)
+// Email transporter setup using Ethereal
 const transporter = nodemailer.createTransport({
   host: "smtp.ethereal.email",
   port: 587,
   auth: {
-    user: "your-ethereal-user", // Replace with your Ethereal email (create at https://ethereal.email/)
+    user: "your-ethereal-user", // Replace with your Ethereal email
     pass: "your-ethereal-pass", // Replace with your Ethereal password
   },
 });
@@ -117,7 +118,7 @@ router.post("/add-money", authMiddleware, async (req, res) => {
 
       await transporter
         .sendMail({
-          from: "your-ethereal-user", // Replace with your Ethereal email
+          from: "your-ethereal-user",
           to: userEmail,
           subject: "Suspicious Deposit Alert",
           text: `A suspicious deposit was detected: Deposit (₹${
@@ -145,7 +146,7 @@ router.post("/add-money", authMiddleware, async (req, res) => {
 
       await transporter
         .sendMail({
-          from: "your-ethereal-user", // Replace with your Ethereal email
+          from: "your-ethereal-user",
           to: userEmail,
           subject: "Unusual Deposit Behavior Alert",
           text: `Unusual deposit detected: Deposit (₹${
@@ -176,6 +177,145 @@ router.post("/add-money", authMiddleware, async (req, res) => {
   }
 });
 
+// Buy a stock and deduct the amount from the selected bank account
+router.post("/buy-stock", authMiddleware, async (req, res) => {
+  try {
+    const { bankAccountId, stockSymbol, stockName, amount } = req.body;
+    const purchaseAmount = parseFloat(amount);
+
+    if (isNaN(purchaseAmount) || purchaseAmount <= 0) {
+      return res.status(400).json({ error: "Invalid purchase amount" });
+    }
+
+    const account = await BankAccount.findOne({
+      _id: bankAccountId,
+      user: req.user.id,
+    });
+    if (!account) {
+      return res.status(404).json({ error: "Bank account not found" });
+    }
+
+    if (account.balance < purchaseAmount) {
+      return res
+        .status(400)
+        .json({ error: "Insufficient balance in selected account" });
+    }
+
+    // Deduct the amount from the bank account
+    account.balance -= purchaseAmount;
+    account.lastSynced = new Date().toISOString();
+    await account.save();
+
+    // Record the stock purchase as a transaction
+    const transaction = new Transaction({
+      user: req.user.id,
+      bankAccount: bankAccountId,
+      description: `Stock Purchase: ${stockName} (${stockSymbol})`,
+      category: "Stock Purchase",
+      amount: purchaseAmount,
+      date: new Date(),
+    });
+
+    // Run anomaly detection on the transaction
+    let transactions = [transaction];
+    transactions = await detectAnomalies(req.user.id, transactions);
+    transactions = await analyzeBehavior(req.user.id, transactions);
+
+    const savedTransaction = await transaction.save();
+
+    // Save the stock purchase to the stocks collection
+    const stock = new Stock({
+      user: req.user.id,
+      symbol: stockSymbol,
+      name: stockName,
+      purchasePrice: purchaseAmount,
+      quantity: 1, // Hardcoded for now; can add quantity selection later
+    });
+    await stock.save();
+
+    // Fetch the user's email
+    const user = await User.findById(req.user.id);
+    if (!user || !user.email) {
+      console.error("User email not found for user ID:", req.user.id);
+      return res.status(400).json({ error: "User email not found" });
+    }
+    const userEmail = user.email;
+
+    // Create notifications for suspicious transactions
+    const notifications = [];
+    if (savedTransaction.isSuspicious) {
+      const message = `Suspicious transaction detected: Stock Purchase: ${stockName} (${stockSymbol}) (₹${savedTransaction.amount})`;
+      notifications.push({
+        user: req.user.id,
+        message,
+        type: "anomaly",
+        transaction: savedTransaction._id,
+      });
+
+      await transporter
+        .sendMail({
+          from: "your-ethereal-user",
+          to: userEmail,
+          subject: "Suspicious Stock Purchase Alert",
+          text: `A suspicious transaction was detected: Stock Purchase: ${stockName} (${stockSymbol}) (₹${
+            savedTransaction.amount
+          }) on ${new Date(
+            savedTransaction.date
+          ).toLocaleDateString()}. Please review your account activity.`,
+        })
+        .catch((error) => {
+          console.error(
+            `Error sending email for suspicious stock purchase (ID: ${savedTransaction._id}):`,
+            error
+          );
+        });
+    }
+
+    if (transactions[0].behaviorFlag) {
+      const message = `Unusual spending behavior detected: Stock Purchase: ${stockName} (${stockSymbol}) (₹${savedTransaction.amount}) exceeds your typical spending for Stock Purchase`;
+      notifications.push({
+        user: req.user.id,
+        message,
+        type: "behavior",
+        transaction: savedTransaction._id,
+      });
+
+      await transporter
+        .sendMail({
+          from: "your-ethereal-user",
+          to: userEmail,
+          subject: "Unusual Stock Purchase Behavior Alert",
+          text: `Unusual spending detected: Stock Purchase: ${stockName} (${stockSymbol}) (₹${
+            savedTransaction.amount
+          }) on ${new Date(
+            savedTransaction.date
+          ).toLocaleDateString()} exceeds your typical spending for Stock Purchase. Please review your account activity.`,
+        })
+        .catch((error) => {
+          console.error(
+            `Error sending email for unusual stock purchase behavior (ID: ${savedTransaction._id}):`,
+            error
+          );
+        });
+    }
+
+    if (notifications.length > 0) {
+      console.log("Notifications created for stock purchase:", notifications);
+      await Notification.insertMany(notifications);
+    }
+
+    res.json({
+      message: "Stock purchased successfully",
+      updatedAccount: account,
+    });
+  } catch (error) {
+    console.error("Error in /buy-stock endpoint:", error);
+    res
+      .status(500)
+      .json({ error: "Error purchasing stock", details: error.message });
+  }
+});
+
 // Delete a bank account and its associated transactions
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
@@ -189,13 +329,8 @@ router.delete("/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "Bank account not found" });
     }
 
-    // Delete the bank account
     await BankAccount.deleteOne({ _id: accountId });
-
-    // Delete associated transactions
     await Transaction.deleteMany({ bankAccount: accountId });
-
-    // Delete associated notifications
     await Notification.deleteMany({
       user: req.user.id,
       transaction: {
@@ -291,7 +426,7 @@ router.post("/deduct", authMiddleware, async (req, res) => {
 
         await transporter
           .sendMail({
-            from: "your-ethereal-user", // Replace with your Ethereal email
+            from: "your-ethereal-user",
             to: userEmail,
             subject: "Suspicious Transaction Alert",
             text: `A suspicious transaction was detected: ${
@@ -319,7 +454,7 @@ router.post("/deduct", authMiddleware, async (req, res) => {
 
         await transporter
           .sendMail({
-            from: "your-ethereal-user", // Replace with your Ethereal email
+            from: "your-ethereal-user",
             to: userEmail,
             subject: "Unusual Spending Behavior Alert",
             text: `Unusual spending detected: ${txn.description} (₹${
@@ -354,6 +489,19 @@ router.post("/deduct", authMiddleware, async (req, res) => {
     res
       .status(500)
       .json({ error: "Error deducting amount", details: error.message });
+  }
+});
+
+// Get all purchased stocks for the user
+router.get("/stocks", authMiddleware, async (req, res) => {
+  try {
+    const stocks = await Stock.find({ user: req.user.id });
+    res.json(stocks);
+  } catch (error) {
+    console.error("Error fetching stocks:", error);
+    res
+      .status(500)
+      .json({ error: "Error fetching stocks", details: error.message });
   }
 });
 

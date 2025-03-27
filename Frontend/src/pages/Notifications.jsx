@@ -4,12 +4,15 @@ import { FaBell, FaCheckCircle } from "react-icons/fa";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchNotifications();
   }, []);
 
   const fetchNotifications = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.get(
         "http://localhost:5000/api/notifications",
@@ -18,8 +21,15 @@ const Notifications = () => {
         }
       );
       setNotifications(data);
+      setError(null);
     } catch (error) {
+      setError(
+        "Failed to fetch notifications: " +
+          (error.response?.data?.error || error.message)
+      );
       console.error("Error fetching notifications:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,14 +49,22 @@ const Notifications = () => {
       );
     } catch (error) {
       console.error("Error marking notification as read:", error);
+      setError(
+        "Failed to mark notification as read: " +
+          (error.response?.data?.error || error.message)
+      );
     }
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h2 className="text-3xl font-bold mb-6 text-gray-800">Notifications</h2>
-      {notifications.length === 0 ? (
-        <p className="text-gray-600">No notifications to display.</p>
+      {loading && <p className="text-gray-600 text-center">Loading...</p>}
+      {error && <p className="text-red-500 text-center">{error}</p>}
+      {notifications.length === 0 && !loading ? (
+        <p className="text-gray-600 text-center">
+          No notifications to display.
+        </p>
       ) : (
         <div className="space-y-4">
           {notifications.map((notif) => (
@@ -61,11 +79,17 @@ const Notifications = () => {
                   className={`text-2xl ${
                     notif.type === "anomaly"
                       ? "text-red-500"
-                      : "text-yellow-500"
+                      : notif.type === "behavior"
+                      ? "text-yellow-500"
+                      : "text-orange-500" // For budget_exceed
                   }`}
                 />
                 <div>
-                  <p className="text-gray-800">{notif.message}</p>
+                  <p className="text-gray-800">
+                    {notif.type === "budget_exceed" && notif.category
+                      ? `${notif.category}: ${notif.message}`
+                      : notif.message}
+                  </p>
                   <p className="text-sm text-gray-500">
                     {new Date(notif.date).toLocaleString()}
                   </p>

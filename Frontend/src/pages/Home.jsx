@@ -22,22 +22,10 @@ const Home = () => {
             </p>
             <div className="flex gap-4">
               <Link
-                to="/expenses"
-                className="bg-blue-500 text-white px-4 py-2 rounded"
+                to="/tax-filing"
+                className="hover:text-blue-400 transition duration-200"
               >
-                Go to Expenses
-              </Link>
-              <Link
-                to="/budget"
-                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
-              >
-                Manage Budget
-              </Link>
-              <Link
-                to="/tax"
-                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
-              >
-                Tax Overview
+                Tax Filing
               </Link>
               <Link
                 to="/fraud"
@@ -82,6 +70,9 @@ const Home = () => {
               >
                 notification
               </Link>
+              <Link to="/insights" className="hover:text-blue-400 transition duration-200">
+              Financial Insights
+            </Link>
               <button
                 onClick={logout}
                 className="bg-red-500 text-white px-4 py-2 rounded"

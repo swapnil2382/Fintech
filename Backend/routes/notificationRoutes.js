@@ -1,11 +1,14 @@
 const express = require("express");
 const Notification = require("../models/Notification");
-const { authMiddleware } = require("../middleware/authMiddleware");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
+console.log("Notification Routes: Router created", router); // Debug log
+
 // Get all notifications for the user
 router.get("/", authMiddleware, async (req, res) => {
+  console.log("Notification GET route handler called"); // Debug log
   try {
     const notifications = await Notification.find({ user: req.user.id })
       .populate("transaction")
@@ -38,4 +41,5 @@ router.put("/:id/read", authMiddleware, async (req, res) => {
   }
 });
 
+console.log("Notification Routes: Module exports", router); // Debug log
 module.exports = router;
