@@ -11,6 +11,7 @@ const transactionSchema = new mongoose.Schema({
   category: { type: String, required: true },
   amount: { type: Number, required: true },
   date: { type: Date, default: Date.now },
+  isSuspicious: { type: Boolean, default: false }, // New field for anomaly detection
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

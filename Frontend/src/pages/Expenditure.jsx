@@ -18,6 +18,7 @@ const Expenditure = () => {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState("");
   const [tips, setTips] = useState("");
+  const [alerts, setAlerts] = useState([]); // New state for real-time alerts
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,7 +34,7 @@ const Expenditure = () => {
         setAccounts(data);
         const balance = data.reduce((sum, account) => sum + account.balance, 0);
         setTotalBalance(balance);
-        if (data.length > 0) setSelectedAccount(data[0]._id); // Default to first account
+        if (data.length > 0) setSelectedAccount(data[0]._id);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -46,6 +47,25 @@ const Expenditure = () => {
       ...prev,
       [category]: parseFloat(value) || 0,
     }));
+  };
+
+  const fetchAlerts = async () => {
+    try {
+      const { data } = await axios.get(
+        "http://localhost:5000/api/notifications",
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      // Show only unread notifications from the last minute
+      const recentAlerts = data.filter(
+        (notif) =>
+          !notif.read && new Date(notif.date) > new Date(Date.now() - 60 * 1000)
+      );
+      setAlerts(recentAlerts);
+    } catch (error) {
+      console.error("Error fetching alerts:", error);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -66,7 +86,6 @@ const Expenditure = () => {
     }
 
     try {
-      // Deduct from selected bank account and record transactions
       const deductResponse = await axios.post(
         "http://localhost:5000/api/bank-accounts/deduct",
         { bankAccountId: selectedAccount, expenses },
@@ -93,6 +112,9 @@ const Expenditure = () => {
       );
       setTotalBalance(newBalance);
 
+      // Fetch alerts after submission
+      await fetchAlerts();
+
       // Generate tips
       const highestCategory = Object.entries(expenses).reduce((a, b) =>
         a[1] > b[1] ? a : b
@@ -118,18 +140,17 @@ const Expenditure = () => {
     }
   };
 
-  // Chart data
   const chartData = {
     labels: Object.keys(expenses),
     datasets: [
       {
         data: Object.values(expenses),
         backgroundColor: [
-          "#FF6384", // Food
-          "#36A2EB", // Transport
-          "#FFCE56", // Housing
-          "#4BC0C0", // Entertainment
-          "#9966FF", // Others
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
         ],
         hoverBackgroundColor: [
           "#FF6384",
@@ -151,8 +172,25 @@ const Expenditure = () => {
         Current Total Balance: ₹{totalBalance.toFixed(2)}
       </p>
 
+      {/* Real-time Alerts */}
+      {alerts.length > 0 && (
+        <div className="mb-6 space-y-2">
+          {alerts.map((alert) => (
+            <div
+              key={alert._id}
+              className={`p-4 rounded-lg shadow-md ${
+                alert.type === "anomaly"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
+              {alert.message}
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Expenditure Form */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             Enter Your Expenses
@@ -206,10 +244,15 @@ const Expenditure = () => {
             >
               View Transaction History
             </Link>
+            <Link
+              to="/notifications"
+              className="ml-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+            >
+              View Notifications
+            </Link>
           </form>
         </div>
 
-        {/* Chart and Tips */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             Spending Breakdown

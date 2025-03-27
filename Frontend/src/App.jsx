@@ -3,7 +3,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-
+import Notifications from "./pages/Notifications";
 import Transactions from "./pages/Transaction";
 import Budget from "./pages/Budget";
 import Tax from "./pages/Tax";
@@ -15,7 +15,6 @@ import FixedDeposits from "./pages/FixedDeposits";
 import Goals from "./pages/Goals";
 import BankAccounts from "./pages/BankAccounts";
 import Expenditure from "./pages/Expenditure";
-
 
 const App = () => {
   return (
@@ -36,8 +35,9 @@ const App = () => {
           <Route path="/bank-accounts" element={<BankAccounts />} />
           <Route path="/expenditure" element={<Expenditure />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/notifications" element={<Notifications />} />
         </Routes>
-        <Transactions />
+
       </AuthProvider>
     </Router>
   );
