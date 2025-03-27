@@ -39,6 +39,25 @@ const Home = () => {
               >
                 Tax Overview
               </Link>
+              <Link
+                to="/fraud"
+                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
+              >
+                Fraud Alerts
+              </Link>
+
+              <Link
+                to="/investments"
+                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
+              >
+                Explore Investments
+              </Link>
+              <Link
+                to="/goals"
+                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
+              >
+                goals
+              </Link>
               <button
                 onClick={logout}
                 className="bg-red-500 text-white px-4 py-2 rounded"

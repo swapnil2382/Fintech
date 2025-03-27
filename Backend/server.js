@@ -8,6 +8,7 @@ const expenseRoutes = require("./routes/expenseRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
 const taxRoutes = require("./routes/taxRoutes");
+const fraudRoutes = require("./routes/fraudRoutes");
 
 dotenv.config();
 const app = express();
@@ -22,6 +23,7 @@ app.use("/api/expenses", expenseRoutes);
 app.use("/api/income", incomeRoutes);
 app.use("/api/budgets", budgetRoutes); // Add this line
 app.use("/api/tax", taxRoutes);
+app.use("/api/fraud", fraudRoutes);
 
 // Database Connection
 mongoose
