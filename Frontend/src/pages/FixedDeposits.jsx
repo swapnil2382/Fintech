@@ -17,7 +17,6 @@ const FixedDeposits = () => {
   const navigate = useNavigate();
 
   // Calculate FD maturity amount using compound interest formula
-  // A = P(1 + r/n)^(nt), simplified to yearly compounding here
   const calculateFD = () => {
     const principalAmount = parseFloat(principal);
     if (!principalAmount || principalAmount <= 0) return;
@@ -44,39 +43,37 @@ const FixedDeposits = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h2 className="text-3xl font-bold mb-6 text-gray-800">
+    <div className="p-6 bg-black text-white min-h-screen py-32">
+      <h2 className="text-3xl font-bold mb-6 text-center">
         Invest in Fixed Deposits
       </h2>
-      <p className="text-gray-600 mb-6">
+      <p className="text-center mb-6">
         Enter your investment details to calculate the maturity amount for a
         Fixed Deposit.
       </p>
 
       <form
         onSubmit={handleSubmit}
-        className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md"
+        className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-md"
       >
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Principal Amount (₹)
-          </label>
+          <label className="block text-white font-medium mb-2">Principal Amount (₹)</label>
           <input
             type="number"
             value={principal}
             onChange={(e) => setPrincipal(e.target.value)}
-            className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-500 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="e.g., 100000"
             min="1000"
             required
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Tenure</label>
+          <label className="block text-white font-medium mb-2">Tenure</label>
           <select
             value={tenure}
             onChange={(e) => setTenure(e.target.value)}
-            className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-500 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="1 Year">1 Year</option>
             <option value="3 Years">3 Years</option>
@@ -84,11 +81,11 @@ const FixedDeposits = () => {
           </select>
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Bank</label>
+          <label className="block text-white font-medium mb-2">Bank</label>
           <select
             value={bank}
             onChange={(e) => setBank(e.target.value)}
-            className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-500 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="SBI">SBI</option>
             <option value="HDFC Bank">HDFC Bank</option>
@@ -114,11 +111,11 @@ const FixedDeposits = () => {
       </form>
 
       {suggestion && (
-        <div className="mt-6 max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+        <div className="mt-6 max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-md">
+          <h3 className="text-xl font-semibold text-white mb-2 text-center">
             FD Investment Details
           </h3>
-          <p className="text-gray-700 whitespace-pre-line">{suggestion}</p>
+          <p className="text-white whitespace-pre-line">{suggestion}</p>
         </div>
       )}
     </div>

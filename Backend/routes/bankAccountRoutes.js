@@ -1,7 +1,7 @@
 const express = require("express");
 const BankAccount = require("../models/BankAccount");
 const Transaction = require("../models/Transaction");
-const { authMiddleware } = require("../middleware/authMiddleware");
+const  authMiddleware  = require("../middleware/authMiddleware");
 
 const router = express.Router();
 

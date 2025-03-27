@@ -79,25 +79,25 @@ const Land = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen flex flex-col items-center">
-      <div className="max-w-lg w-full bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">
+    <div className="p-48 bg-black min-h-screen flex flex-col items-center text-white ">
+      <div className="max-w-lg w-full  bg-blue-950 p-6 rounded-lg shadow-lg">
+        <h2 className="text-3xl font-bold text-white mb-4 text-center">
           📍 Invest in Land
         </h2>
-        <p className="text-gray-600 mb-6 text-center">
+        <p className="text-white mb-6 text-center">
           Enter a city in India to check land investment opportunities.
         </p>
 
         <form onSubmit={handleLandSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 font-medium mb-2">
+            <label className="block text-white font-medium mb-2">
               City Name (e.g., Mumbai, Hyderabad)
             </label>
             <input
               type="text"
               value={landLocation}
               onChange={(e) => setLandLocation(e.target.value)}
-              className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter city name"
               required
             />
@@ -105,14 +105,14 @@ const Land = () => {
           <div className="flex justify-between">
             <button
               type="submit"
-              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-200 w-1/2"
+              className="bg-blue-600 text-white px-14 py-2  ms-28 rounded-lg hover:bg-blue-700 transition duration-200 "
             >
               Check Rates
             </button>
             <button
               type="button"
               onClick={() => navigate("/investments")}
-              className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-200 w-1/2"
+              className="bg-gray-600 text-white px-12 py-2 rounded-lg hover:bg-gray-700 transition duration-200 "
             >
               Back
             </button>
@@ -121,17 +121,17 @@ const Land = () => {
       </div>
 
       {landSuggestion && (
-        <div className="mt-6 max-w-lg w-full bg-white p-6 rounded-lg shadow-lg transition-opacity duration-300 animate-fadeIn">
+        <div className="mt-6 max-w-lg w-full bg-black p-6 rounded-lg shadow-lg transition-opacity duration-300 animate-fadeIn">
           {typeof landSuggestion === "string" ? (
             <p className="text-red-600 text-center font-medium">
               {landSuggestion}
             </p>
           ) : (
             <>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              <h3 className="text-xl font-semibold text-white mb-2">
                 📊 Investment Details - {landSuggestion.location}
               </h3>
-              <div className="text-gray-700 space-y-2">
+              <div className="text-white space-y-2">
                 <p>
                   <span className="font-semibold">Avg Price:</span> ₹
                   {landSuggestion.avgPrice.toLocaleString()}/sq.ft
