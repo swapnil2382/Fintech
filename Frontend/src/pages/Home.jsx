@@ -58,6 +58,24 @@ const Home = () => {
               >
                 goals
               </Link>
+              <Link
+                to="/bank-accounts"
+                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
+              >
+                Check Bank Balance
+              </Link>
+              <Link
+                to="/expenditure"
+                className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+              >
+                Track Expenditure
+              </Link>
+              <Link
+                to="/transactions"
+                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+              >
+                View Transaction History
+              </Link>
               <button
                 onClick={logout}
                 className="bg-red-500 text-white px-4 py-2 rounded"

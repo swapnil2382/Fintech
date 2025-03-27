@@ -81,9 +81,8 @@ const Transactions = () => {
           <option value="">All Categories</option>
           <option value="Food">Food</option>
           <option value="Transport">Transport</option>
-          <option value="Shopping">Shopping</option>
+          <option value="Housing">Housing</option>
           <option value="Entertainment">Entertainment</option>
-          <option value="Rent">Rent</option>
           <option value="Others">Others</option>
         </select>
       </div>
@@ -105,6 +104,9 @@ const Transactions = () => {
               <th className="p-4 text-left text-sm font-semibold uppercase tracking-wider">
                 Category
               </th>
+              <th className="p-4 text-left text-sm font-semibold uppercase tracking-wider">
+                Bank Account
+              </th>
               <th
                 className="p-4 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer hover:bg-blue-700 transition"
                 onClick={() => handleSort("amount")}
@@ -119,7 +121,7 @@ const Transactions = () => {
           <tbody className="divide-y divide-gray-200">
             {filteredTransactions.length === 0 ? (
               <tr>
-                <td colSpan="5" className="p-6 text-center text-gray-500">
+                <td colSpan="6" className="p-6 text-center text-gray-500">
                   No transactions found
                 </td>
               </tr>
@@ -140,19 +142,20 @@ const Transactions = () => {
                           ? "bg-red-100 text-red-600"
                           : txn.category === "Transport"
                           ? "bg-blue-100 text-blue-600"
-                          : txn.category === "Shopping"
-                          ? "bg-green-100 text-green-600"
-                          : txn.category === "Entertainment"
+                          : txn.category === "Housing"
                           ? "bg-yellow-100 text-yellow-600"
-                          : txn.category === "Rent"
-                          ? "bg-purple-100 text-purple-600"
+                          : txn.category === "Entertainment"
+                          ? "bg-green-100 text-green-600"
                           : "bg-gray-100 text-gray-600"
                       }`}
                     >
                       {txn.category}
                     </span>
                   </td>
-                  <td className="p-4 text-gray-700">₹{txn.amount}</td>
+                  <td className="p-4 text-gray-700">{txn.bankAccount.name}</td>
+                  <td className="p-4 text-gray-700">
+                    ₹{txn.amount.toFixed(2)}
+                  </td>
                   <td className="p-4">
                     <button
                       onClick={() => deleteTransaction(txn._id)}
@@ -179,7 +182,9 @@ const Transactions = () => {
           <p className="text-gray-700">
             Total Spent: ₹
             <span className="font-semibold">
-              {filteredTransactions.reduce((sum, txn) => sum + txn.amount, 0)}
+              {filteredTransactions
+                .reduce((sum, txn) => sum + txn.amount, 0)
+                .toFixed(2)}
             </span>
           </p>
         </div>
