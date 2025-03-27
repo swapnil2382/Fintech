@@ -7,6 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
 const taxRoutes = require("./routes/taxRoutes");
+const fraudRoutes = require("./routes/fraudRoutes");
 
 const loanRoutes = require("./routes/loan");
 
@@ -24,8 +25,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/income", incomeRoutes);
 app.use("/api/tax", taxRoutes);
-app.use('/api', loanRoutes);
-app.use('/api/financial-health', financialHealthRoutes);
+app.use("/api/fraud", fraudRoutes);
+app.use("/api", loanRoutes);
+app.use("/api/financial-health", financialHealthRoutes);
 
 // Database Connection
 mongoose

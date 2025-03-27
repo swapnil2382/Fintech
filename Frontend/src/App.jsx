@@ -8,29 +8,39 @@ import Dashboard from "./pages/Dashboard";
 import Income from "./pages/Income";
 import Budget from "./pages/Budget";
 import Tax from "./pages/Tax";
+import Fraud from "./pages/Fraud";
+import Investments from "./pages/Investments";
+import Land from "./pages/Land";
+import MutualFunds from "./pages/MutualFunds";
+import FixedDeposits from "./pages/FixedDeposits";
+import Goals from "./pages/Goals";
 import LoanManager from "./pages/LoanManager";
 import FinancialHealthScore from "./pages/FinancialHealthScore";
-import HomePage from "./pages/HomePage";
+import LandingPage from "./pages/LandingPage";
+
+
 
 const App = () => {
   return (
     <Router>
       <AuthProvider>
-          <Routes>
-          <Route path="/" element={<HomePage />} />
-
-            <Route path="/kl" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/expenses" element={<Expenses />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/income" element={<Income />} />
-            <Route path="/budget" element={<Budget />} />
-            <Route path="/tax" element={<Tax />} />
-            <Route path="/loan" element={<LoanManager />} />
-            <Route path="/finance" element={<FinancialHealthScore/>} />
-
-          </Routes>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/expenses" element={<Expenses />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/income" element={<Income />} />
+          <Route path="/budget" element={<Budget />} />
+          <Route path="/tax" element={<Tax />} />
+          <Route path="/fraud" element={<Fraud />} />
+          <Route path="/investments" element={<Investments />} />
+          <Route path="/land" element={<Land />} />
+          <Route path="/mutual-funds" element={<MutualFunds />} />
+          <Route path="/goals" element={<Goals />} />
+          <Route path="/fixed-deposits" element={<FixedDeposits />} />
+        </Routes>
   
       </AuthProvider>
     </Router>
