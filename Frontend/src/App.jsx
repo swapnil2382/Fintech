@@ -11,6 +11,8 @@ import Land from "./pages/Land";
 import MutualFunds from "./pages/MutualFunds";
 import FixedDeposits from "./pages/FixedDeposits";
 import Goals from "./pages/Goals";
+import LandingPage from "./pages/LandingPage";
+
 import LoanManager from "./pages/LoanManager";
 import FinancialHealthScore from "./pages/FinancialHealthScore";
 import StocksInvest from "./pages/Stockinvest";
@@ -18,13 +20,19 @@ import BankAccounts from "./pages/BankAccounts";
 import Expenditure from "./pages/Expenditure";
 import TaxFiling from "./pages/TaxFiling";
 import FinancialInsights from "./pages/FinancialInsights";
+import Calculator from "./pages/Calculator";
+
+
 
 const App = () => {
   return (
     <Router>
+     
+      
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/tax-filing" element={<TaxFiling />} />
@@ -42,6 +50,8 @@ const App = () => {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/insights" element={<FinancialInsights />} />
+          <Route path="/calculator" element={<Calculator/>} />
+
         </Routes>
       </AuthProvider>
     </Router>

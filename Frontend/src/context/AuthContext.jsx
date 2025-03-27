@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
     });
     localStorage.setItem("token", res.data.token);
     setUser(res.data.user); // ✅ Update user immediately
-    window.location.href = "/"; // ✅ Force refresh home page after login
+    window.location.href = "/Home"; // ✅ Force refresh home page after login
   };
 
   const logout = () => {

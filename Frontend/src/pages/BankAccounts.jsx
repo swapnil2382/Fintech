@@ -149,29 +149,27 @@ const BankAccounts = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-black min-h-screen text-white">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-3xl font-bold text-gray-800">
-            Connected Accounts
-          </h2>
-          <p className="text-gray-600">
+          <h2 className="text-3xl font-bold">Connected Accounts</h2>
+          <p className="text-gray-400">
             Manage your linked financial accounts and connections
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-200">
+          <button className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-200">
             <span className="text-lg">⟳</span> Sync All
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition duration-200"
+            className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-200"
           >
             <span className="text-lg">+</span> Add Account
           </button>
           <Link
             to="/expenditure"
-            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+            className="flex items-center gap-2 bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
           >
             Track Expenditure
           </Link>
@@ -182,24 +180,20 @@ const BankAccounts = () => {
         {accounts.map((account) => (
           <div
             key={account._id}
-            className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200"
+            className="flex items-center justify-between bg-blue-950 p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200"
           >
             <div className="flex items-center gap-4">
               {getIcon(account.type)}
               <div>
-                <h3 className="text-lg font-semibold text-gray-800">
-                  {account.name}
-                </h3>
-                <p className="text-sm text-gray-600">{account.type}</p>
+                <h3 className="text-lg font-semibold">{account.name}</h3>
+                <p className="text-sm text-gray-400">{account.type}</p>
                 <p className="text-sm text-gray-500">
                   Last synced: {account.lastSynced}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <p className="text-lg font-medium text-gray-800">
-                ₹{account.balance.toFixed(2)}
-              </p>
+              <p className="text-lg font-medium">₹{account.balance.toFixed(2)}</p>
               <span
                 className={`text-sm ${
                   account.status === "Connected"
