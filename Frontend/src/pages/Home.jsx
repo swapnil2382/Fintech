@@ -1,86 +1,49 @@
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
-import { Link } from "react-router-dom";
-
-const Home = () => {
-  const { user, logout, loading } = useContext(AuthContext);
-
-  if (loading) {
-    return <div className="text-center mt-20">Loading...</div>;
-  }
-
+const HomePage = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-        {user ? (
-          <>
-            <h1 className="text-2xl font-bold mb-4">
-              Welcome, {user.name}! 🎉
-            </h1>
-            <p className="mb-4">
-              Manage your finances efficiently with AI-powered insights.
-            </p>
-            <div className="flex gap-4">
-              <Link
-                to="/expenses"
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Go to Expenses
-              </Link>
-              <Link
-                to="/budget"
-                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
-              >
-                Manage Budget
-              </Link>
-              <Link
-                to="/tax"
-                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
-              >
-                Tax Overview
-              </Link>
-              <Link
-                to="/income"
-                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
-              >
-                income
-              </Link>
-              <button
-                onClick={logout}
-                className="bg-red-500 text-white px-4 py-2 rounded"
-              >
-                Logout
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <h1 className="text-2xl font-bold mb-4">
-              Welcome to AI Accountant App
-            </h1>
-            <p className="mb-4">
-              Track your expenses, get AI-powered insights, and manage your
-              finances easily.
-            </p>
-            <div className="flex gap-4">
-              <Link
-                to="/login"
-                className="bg-green-500 text-white px-4 py-2 rounded"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Register
-              </Link>
-            </div>
-          </>
-        )}
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      <nav className="w-1/5 bg-gradient-to-b from-blue-600 to-blue-800 text-white p-6 flex flex-col items-center">
+        <h1 className="text-2xl font-bold mb-6">Finance App</h1>
+        <ul className="w-full">
+          {['Home', 'Login', 'Register'].map((item, index) => (
+            <li key={index} className="w-full text-center py-3 hover:bg-blue-700 cursor-pointer transition duration-300">
+              {item}
+              <hr className="border-t border-blue-400 my-2" />
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Main Content */}
+      <div className="w-4/5 p-10">
+        {/* Hero Section */}
+        <section className="text-center mb-12">
+          <h1 className="text-4xl font-extrabold text-blue-900">Welcome to FinanceHub</h1>
+          <p className="text-lg text-gray-700 mt-4">Manage your stocks, bonds, and insurance effortlessly. Get real-time insights and optimize your investments with our intuitive platform.</p>
+        </section>
+
+        {/* Features Section */}
+        <section className="grid grid-cols-2 gap-6">
+          <div className="p-6 bg-blue-100 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold text-blue-900">Stock Management</h2>
+            <p className="text-gray-700 mt-2">Track and analyze your stock investments with detailed insights.</p>
+          </div>
+          <div className="p-6 bg-blue-100 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold text-blue-900">Bonds & Insurance</h2>
+            <p className="text-gray-700 mt-2">Plan and secure your future with smart bond and insurance investments.</p>
+          </div>
+          <div className="p-6 bg-blue-100 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold text-blue-900">Real-time Analytics</h2>
+            <p className="text-gray-700 mt-2">Make informed financial decisions with real-time market trends.</p>
+          </div>
+          <div className="p-6 bg-blue-100 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold text-blue-900">Portfolio Optimization</h2>
+            <p className="text-gray-700 mt-2">Maximize returns with AI-driven investment strategies.</p>
+          </div>
+        </section>
       </div>
     </div>
   );
 };
 
-export default Home;
+export default HomePage;

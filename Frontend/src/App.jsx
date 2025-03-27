@@ -6,18 +6,20 @@ import Register from "./pages/Register";
 import Expenses from "./pages/Expenses";
 import Dashboard from "./pages/Dashboard";
 import Income from "./pages/Income";
-import Transactions from "./pages/Transaction";
 import Budget from "./pages/Budget";
 import Tax from "./pages/Tax";
 import LoanManager from "./pages/LoanManager";
 import FinancialHealthScore from "./pages/FinancialHealthScore";
+import HomePage from "./pages/HomePage";
 
 const App = () => {
   return (
     <Router>
       <AuthProvider>
           <Routes>
-            <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomePage />} />
+
+            <Route path="/kl" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/expenses" element={<Expenses />} />
@@ -29,7 +31,7 @@ const App = () => {
             <Route path="/finance" element={<FinancialHealthScore/>} />
 
           </Routes>
-          <Transactions/>
+  
       </AuthProvider>
     </Router>
   );
