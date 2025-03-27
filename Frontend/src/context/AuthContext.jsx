@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
     const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
     localStorage.setItem("token", res.data.token);
     setUser(res.data.user); // ✅ Update user immediately
-    window.location.reload(); // ✅ Force refresh home page after login
+    window.location.href = "/"; // ✅ Force refresh home page after login
   };
 
   const logout = () => {

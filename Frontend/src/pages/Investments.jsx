@@ -88,7 +88,9 @@ const Investments = () => {
     } else if (option.name === "Mutual Funds") {
       navigate("/mutual-funds");
     } else if (option.name === "Fixed Deposits") {
-      navigate("/fixed-deposits"); // Redirect to Fixed Deposits page
+      navigate("/fixed-deposits");
+    } else if (option.name === "Stocks") {
+      navigate("/stocksinvest"); // Redirect to /stocksinvest page
     } else {
       console.log(`Mock investment action: Investing in ${option.name}`);
       alert(`You’ve chosen to explore ${option.name}! (Mock action)`);

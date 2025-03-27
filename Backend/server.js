@@ -9,6 +9,7 @@ const incomeRoutes = require("./routes/incomeRoutes");
 const taxRoutes = require("./routes/taxRoutes");
 const fraudRoutes = require("./routes/fraudRoutes");
 
+
 const loanRoutes = require("./routes/loan");
 
 const financialHealthRoutes = require("./routes/financialhealthroyes");
