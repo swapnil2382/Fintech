@@ -1,32 +1,31 @@
 const express = require("express");
-const Income = require("../models/Income");
-const LockStatus = require("../models/LockStatus"); // Lock Status Model
-const authMiddleware = require("../middleware/authMiddleware"); // Authentication Middleware
+const Income = require("../models/Income"); // Ensure this path is correct
+const LockStatus = require("../models/LockStatus");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// ✅ Add Income (User-Specific)
+// Add Income
 router.post("/", authMiddleware, async (req, res) => {
   try {
-    const { amount, source, description } = req.body;
-
-    // Check if the income is locked for this user
+    const { amount, source, description, bankAccount } = req.body;
     const lockStatus = await LockStatus.findOne({ user: req.user.id });
     if (lockStatus && lockStatus.isLocked) {
       return res.status(403).json({ error: "Income is locked for this month" });
     }
-
     if (!amount || amount <= 0) {
       return res.status(400).json({ error: "Amount must be a positive number" });
     }
-
+    if (!bankAccount) {
+      return res.status(400).json({ error: "Bank account is required" });
+    }
     const newIncome = new Income({
       user: req.user.id,
       amount,
       source,
       description,
+      bankAccount,
     });
-
     await newIncome.save();
     res.status(201).json({ message: "Income added successfully", income: newIncome });
   } catch (error) {
@@ -35,10 +34,12 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ Get User's Income (Sorted by Date)
+// Get User's Income
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const incomeRecords = await Income.find({ user: req.user.id }).sort({ date: -1 });
+    const incomeRecords = await Income.find({ user: req.user.id })
+      .populate("bankAccount")
+      .sort({ date: -1 });
     res.json({ income: incomeRecords });
   } catch (error) {
     console.error("Error fetching income:", error);
@@ -46,7 +47,7 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ Reset All User's Income History
+// Reset Income History
 router.post("/reset", authMiddleware, async (req, res) => {
   try {
     await Income.deleteMany({ user: req.user.id });
@@ -57,12 +58,11 @@ router.post("/reset", authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ Get Total Income for User
+// Get Total Income
 router.get("/total", authMiddleware, async (req, res) => {
   try {
     const incomeList = await Income.find({ user: req.user.id });
     const totalIncome = incomeList.reduce((sum, inc) => sum + inc.amount, 0);
-    
     res.json({ totalIncome });
   } catch (error) {
     console.error("Error fetching total income:", error);
