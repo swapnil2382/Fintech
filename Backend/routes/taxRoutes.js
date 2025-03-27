@@ -1,6 +1,5 @@
 const express = require("express");
-const Income = require("../models/Income");
-const Expense = require("../models/Expense");
+
 const { authMiddleware } = require("../middleware/authMiddleware");
 
 const router = express.Router();

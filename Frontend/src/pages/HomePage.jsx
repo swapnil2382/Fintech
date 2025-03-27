@@ -123,7 +123,7 @@ const SecurityPage = () => {
             whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(0, 191, 255, 0.8)" }}
           >
             <h2 className="text-2xl font-semibold text-blue-300">{feature.title}</h2>
-            <p className="text-gray-300 mb-25 mt-9">{feature.description}</p>
+            <p className="text-gray-300 mb-25 mt-">{feature.description}</p>
             
           </motion.div>
         ))}

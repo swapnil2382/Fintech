@@ -30,7 +30,7 @@ const Budget = () => {
     }
   };
 
-  // Fetch Expenses (for comparison)
+  // Fetch Expenses
   const fetchExpenses = async () => {
     try {
       const { data } = await axios.get("http://localhost:5000/api/expenses", {
@@ -91,8 +91,8 @@ const Budget = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h2 className="text-3xl font-bold mb-6 text-gray-800">
+    <div className="p-6 bg-black min-h-screen">
+      <h2 className="text-3xl font-bold mb-6 text-white">
         Budget for {currentMonth}
       </h2>
 
@@ -102,7 +102,7 @@ const Budget = () => {
           name="category"
           value={formData.category}
           onChange={handleChange}
-          className="border border-gray-300 p-2 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+          className="border border-gray-600 p-2 rounded-lg bg-blue-950 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
           required
         >
           <option value="">Select Category</option>
@@ -119,7 +119,7 @@ const Budget = () => {
           value={formData.limit}
           onChange={handleChange}
           placeholder="Budget Limit (₹)"
-          className="border border-gray-300 p-2 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+          className="border border-gray-600 p-2 rounded-lg bg-blue-950 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
           required
         />
         <button
@@ -133,7 +133,7 @@ const Budget = () => {
       {/* Budget Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {budgets.length === 0 ? (
-          <p className="text-gray-500">No budgets set for this month yet.</p>
+          <p className="text-gray-400">No budgets set for this month yet.</p>
         ) : (
           budgets.map((budget) => {
             const spent = getSpendingByCategory(budget.category);
@@ -141,23 +141,23 @@ const Budget = () => {
             return (
               <div
                 key={budget._id}
-                className="bg-white p-4 rounded-lg shadow-md"
+                className="bg-blue-950 p-4 rounded-lg shadow-md"
               >
-                <h3 className="text-lg font-semibold text-gray-800">
+                <h3 className="text-lg font-semibold text-white">
                   {budget.category}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-300">
                   Spent: ₹{spent} / ₹{budget.limit}
                 </p>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                <div className="w-full bg-gray-700 rounded-full h-2.5 mt-2">
                   <div
                     className={`h-2.5 rounded-full ${
-                      percentage > 75 ? "bg-red-500" : "bg-blue-500"
+                      percentage > 75 ? "bg-red-500" : "bg-green-500"
                     }`}
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
-                <p className="mt-2 text-sm text-gray-700">
+                <p className="mt-2 text-sm text-gray-300">
                   {getBudgetTip(budget.category, spent, budget.limit)}
                 </p>
               </div>
