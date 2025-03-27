@@ -22,18 +22,6 @@ const Home = () => {
             </p>
             <div className="flex gap-4">
               <Link
-                to="/expenses"
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Go to Expenses
-              </Link>
-              <Link
-                to="/budget"
-                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
-              >
-                Manage Budget
-              </Link>
-              <Link
                 to="/tax"
                 className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
               >
@@ -57,6 +45,24 @@ const Home = () => {
                 className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
               >
                 goals
+              </Link>
+              <Link
+                to="/bank-accounts"
+                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4"
+              >
+                Check Bank Balance
+              </Link>
+              <Link
+                to="/expenditure"
+                className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+              >
+                Track Expenditure
+              </Link>
+              <Link
+                to="/transactions"
+                className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+              >
+                View Transaction History
               </Link>
               <button
                 onClick={logout}

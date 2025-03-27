@@ -4,14 +4,12 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 
 const authRoutes = require("./routes/authRoutes");
-const expenseRoutes = require("./routes/expenseRoutes");
-const incomeRoutes = require("./routes/incomeRoutes");
 const taxRoutes = require("./routes/taxRoutes");
 const fraudRoutes = require("./routes/fraudRoutes");
-
-
+const bankAccountRoutes = require("./routes/bankAccountRoutes");
+const expenditureRoutes = require("./routes/expenditureRoutes");
+const transactionRoutes = require("./routes/transactionRoutes");
 const loanRoutes = require("./routes/loan");
-
 const financialHealthRoutes = require("./routes/financialhealthroyes");
 
 dotenv.config();
@@ -23,12 +21,13 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/expenses", expenseRoutes);
-app.use("/api/income", incomeRoutes);
 app.use("/api/tax", taxRoutes);
 app.use("/api/fraud", fraudRoutes);
 app.use("/api", loanRoutes);
 app.use("/api/financial-health", financialHealthRoutes);
+app.use("/api/expenses", transactionRoutes);
+app.use("/api/bank-accounts", bankAccountRoutes);
+app.use("/api/expenditures", expenditureRoutes);
 
 // Database Connection
 mongoose

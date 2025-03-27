@@ -1,6 +1,5 @@
 const express = require("express");
-const Expense = require("../models/Expense");
-const authMiddleware = require("../middleware/authMiddleware"); // ✅ Now correctly imports a function
+const  authMiddleware  = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
