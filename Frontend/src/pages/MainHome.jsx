@@ -1,7 +1,8 @@
+// src/pages/MainHome.jsx
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate, Routes, Route } from "react-router-dom";
-import { FaBell } from "react-icons/fa"; // Importing bell icon from react-icons
+import { FaBell } from "react-icons/fa";
 import Chat from "./Chat";
 import Fraud from "./Fraud";
 import Investments from "./Investments";
@@ -27,7 +28,7 @@ const MainHome = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/"); // Redirect to Homepage after logout
   };
 
   if (loading) {
@@ -35,21 +36,21 @@ const MainHome = () => {
   }
 
   const sidebarLinks = [
-    { to: "/dashboard", label: "Port-Folio" },
-    { to: "/bank-accounts", label: "Accounts" },
-    { to: "/expenditure", label: "Expenditure" },
-    { to: "/transactions", label: "Transactions" },
-    { to: "/calculator", label: "Tax Calculator" },
+    { to: "/home/dashboard", label: "Port-Folio" },
+    { to: "/home/bank-accounts", label: "Accounts" },
+    { to: "/home/expenditure", label: "Expenditure" },
+    { to: "/home/transactions", label: "Transactions" },
+    { to: "/home/calculator", label: "Tax Calculator" },
   ];
 
   const navLinks = [
-    { to: "/fraud", label: "Fraud Alerts" },
-    { to: "/investments", label: "Investments" },
-    { to: "/goals", label: "Goals" },
-    { to: "/loan", label: "Loan Manager" },
-    { to: "/finance", label: "Financial Health" },
-    { to: "/insights", label: "Financial Insights" },
-    { to: "/tax-filing", label: "Taxes Invoice" },
+    { to: "/home/fraud", label: "Fraud Alerts" },
+    { to: "/home/investments", label: "Investments" },
+    { to: "/home/goals", label: "Goals" },
+    { to: "/home/loan", label: "Loan Manager" },
+    { to: "/home/finance", label: "Financial Health" },
+    { to: "/home/insights", label: "Financial Insights" },
+    { to: "/home/tax-filing", label: "Taxes Invoice" },
   ];
 
   return (
@@ -104,7 +105,10 @@ const MainHome = () => {
               </div>
               {/* Notification Bell */}
               {user && (
-                <Link to="/notifications" className="text-gray-300 hover:text-blue-500 transition duration-200 flex items-center pr-5">
+                <Link
+                  to="/home/notifications"
+                  className="text-gray-300 hover:text-blue-500 transition duration-200 flex items-center pr-5"
+                >
                   <FaBell className="w-6 h-6" />
                 </Link>
               )}
@@ -121,7 +125,7 @@ const MainHome = () => {
                 element={
                   <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center text-white">
                     <p className="mb-4">
-                      Manage your finances efficiently with AI-powered insights.
+                      Welcome back, {user?.name}! Manage your finances efficiently with AI-powered insights.
                     </p>
                   </div>
                 }

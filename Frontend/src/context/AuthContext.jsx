@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
-    window.location.reload(); // ✅ Force refresh home page after logout
+    window.location.href = "/"; // ✅ Force refresh home page after logout
   };
 
   return (
