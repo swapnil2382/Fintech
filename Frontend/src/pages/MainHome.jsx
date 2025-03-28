@@ -3,8 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate, Routes, Route } from "react-router-dom";
 import {
   FaBell,
-  FaUser,
-  FaCog,
+
   FaSyncAlt,
   FaChartLine,
   FaUniversity,
@@ -70,6 +69,8 @@ const MainHome = () => {
     { to: "/home/insights", label: "Financial Insights" },
     { to: "/home/tax-filing", label: "Taxes Invoice" },
     { to: "/home/debt-tracker", label: "Debt Tracker" },
+    
+
   ];
 
   return (
