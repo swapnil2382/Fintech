@@ -1,0 +1,45 @@
+const express = require("express");
+const Notification = require("../models/Notification");
+const authMiddleware = require("../middleware/authMiddleware");
+
+const router = express.Router();
+
+console.log("Notification Routes: Router created", router); // Debug log
+
+// Get all notifications for the user
+router.get("/", authMiddleware, async (req, res) => {
+  console.log("Notification GET route handler called"); // Debug log
+  try {
+    const notifications = await Notification.find({ user: req.user.id })
+      .populate("transaction")
+      .sort({ date: -1 });
+    res.json(notifications);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Error fetching notifications", details: error.message });
+  }
+});
+
+// Mark a notification as read
+router.put("/:id/read", authMiddleware, async (req, res) => {
+  try {
+    const notification = await Notification.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      { read: true },
+      { new: true }
+    );
+    if (!notification) {
+      return res.status(404).json({ error: "Notification not found" });
+    }
+    res.json({ message: "Notification marked as read" });
+  } catch (error) {
+    res.status(500).json({
+      error: "Error marking notification as read",
+      details: error.message,
+    });
+  }
+});
+
+console.log("Notification Routes: Module exports", router); // Debug log
+module.exports = router;

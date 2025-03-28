@@ -26,14 +26,79 @@ ChartJS.register(
 const StocksInvest = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [stocks, setStocks] = useState([]);
-  const [chartData, setChartData] = useState({}); // Store chart data for each stock by symbol
+  const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [exchangeRate, setExchangeRate] = useState(null);
+  const [bankAccounts, setBankAccounts] = useState([]);
+  const [showBuyModal, setShowBuyModal] = useState(false);
+  const [selectedStock, setSelectedStock] = useState(null);
+  const [selectedBankAccountId, setSelectedBankAccountId] = useState("");
+  const [purchasedStocks, setPurchasedStocks] = useState([]); // Store purchased stocks
 
   const API_KEY = "V7XGVH9WBWY8A1PE";
 
+  // Fetch the USD to INR exchange rate
+  const fetchExchangeRate = async () => {
+    try {
+      const response = await axios.get(
+        "https://api.frankfurter.app/latest?from=USD&to=INR"
+      );
+      const rate = response.data.rates.INR;
+      setExchangeRate(rate);
+    } catch (err) {
+      console.error("Error fetching exchange rate:", err);
+      setExchangeRate(83.5);
+      setError(
+        "Failed to fetch exchange rate. Using fallback rate of 1 USD = 83.5 INR."
+      );
+    }
+  };
+
+  // Fetch bank accounts
+  const fetchBankAccounts = async () => {
+    try {
+      const { data } = await axios.get(
+        "http://localhost:5000/api/bank-accounts",
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      setBankAccounts(data);
+    } catch (error) {
+      console.error("Error fetching bank accounts:", error);
+      setError("Failed to fetch bank accounts.");
+    }
+  };
+
+  // Fetch purchased stocks
+  const fetchPurchasedStocks = async () => {
+    try {
+      const { data } = await axios.get(
+        "http://localhost:5000/api/bank-accounts/stocks",
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      setPurchasedStocks(data);
+    } catch (error) {
+      console.error("Error fetching purchased stocks:", error);
+      setError("Failed to fetch purchased stocks.");
+    }
+  };
+
+  useEffect(() => {
+    fetchExchangeRate();
+    fetchBankAccounts();
+    fetchPurchasedStocks();
+  }, []);
+
   const fetchStockSearch = async (query) => {
     if (!query) return;
+    if (!exchangeRate) {
+      setError("Exchange rate not available. Please try again later.");
+      return;
+    }
     setLoading(true);
     setChartData({});
     try {
@@ -53,7 +118,7 @@ const StocksInvest = () => {
         const stock = formattedStocks[i];
         const price = await fetchStockPrice(stock.symbol);
         const suggestion = await fetchAISuggestion(stock.symbol);
-        const chart = await fetchChartData(stock.symbol); // Fetch chart data upfront
+        const chart = await fetchChartData(stock.symbol);
         stocksWithData.push({ ...stock, price, suggestion });
         setStocks([...stocksWithData]);
         setChartData((prev) => ({ ...prev, [stock.symbol]: chart }));
@@ -76,8 +141,9 @@ const StocksInvest = () => {
       const response = await axios.get(
         `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`
       );
-      const price = response.data["Global Quote"]["05. price"];
-      return parseFloat(price).toFixed(2);
+      const priceUSD = response.data["Global Quote"]["05. price"];
+      const priceINR = (parseFloat(priceUSD) * exchangeRate).toFixed(2);
+      return priceINR;
     } catch (err) {
       console.error(`Error fetching price for ${symbol}:`, err);
       return null;
@@ -92,42 +158,59 @@ const StocksInvest = () => {
       const timeSeries = response.data["Time Series (Daily)"];
       if (!timeSeries) return null;
 
-      const prices = Object.values(timeSeries)
+      const pricesUSD = Object.values(timeSeries)
         .slice(0, 5)
         .map((day) => parseFloat(day["4. close"]));
+      const pricesINR = pricesUSD.map((price) => price * exchangeRate);
       const volumes = Object.values(timeSeries)
         .slice(0, 5)
         .map((day) => parseFloat(day["5. volume"]));
 
-      const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
-      const volatility = Math.max(...prices) - Math.min(...prices);
-      const trend = prices[0] > prices[prices.length - 1] ? "up" : "down";
-      const priceVsAvg = prices[0] > avgPrice ? "above" : "below";
+      const avgPrice = pricesINR.reduce((a, b) => a + b, 0) / pricesINR.length;
+      const volatility = Math.max(...pricesINR) - Math.min(...pricesINR);
+      const trend =
+        pricesINR[0] > pricesINR[pricesINR.length - 1] ? "up" : "down";
+      const priceVsAvg = pricesINR[0] > avgPrice ? "above" : "below";
       const volumeChange =
-        (volumes[0] - volumes[volumes.length - 1]) / volumes[volumes.length - 1];
+        (volumes[0] - volumes[volumes.length - 1]) /
+        volumes[volumes.length - 1];
 
       let recommendation, reason, risk;
-      if (trend === "up" && volatility < 10 && volumeChange > 0.1) {
+      if (
+        trend === "up" &&
+        volatility < 10 * exchangeRate &&
+        volumeChange > 0.1
+      ) {
         recommendation = "Strong Buy";
-        reason = "Consistent upward trend with low volatility and increasing volume.";
+        reason =
+          "Consistent upward trend with low volatility and increasing volume.";
         risk = "Low";
-      } else if (trend === "up" && volatility < 15 && priceVsAvg === "above") {
+      } else if (
+        trend === "up" &&
+        volatility < 15 * exchangeRate &&
+        priceVsAvg === "above"
+      ) {
         recommendation = "Buy";
         reason = "Moderate upward trend with prices above 5-day average.";
         risk = "Low to Medium";
-      } else if (trend === "down" && volatility > 20 && volumeChange < -0.2) {
+      } else if (
+        trend === "down" &&
+        volatility > 20 * exchangeRate &&
+        volumeChange < -0.2
+      ) {
         recommendation = "Strong Avoid";
-        reason = "Sharp downward trend with high volatility and declining volume.";
+        reason =
+          "Sharp downward trend with high volatility and declining volume.";
         risk = "High";
       } else if (trend === "down" && priceVsAvg === "below") {
         recommendation = "Avoid";
         reason = "Downward trend with prices below 5-day average.";
         risk = "Medium to High";
-      } else if (volatility > 25) {
+      } else if (volatility > 25 * exchangeRate) {
         recommendation = "Hold";
         reason = "High volatility; monitor for stabilization.";
         risk = "High";
-      } else if (trend === "up" && volatility > 15) {
+      } else if (trend === "up" && volatility > 15 * exchangeRate) {
         recommendation = "Cautious Buy";
         reason = "Upward trend with significant volatility.";
         risk = "Medium to High";
@@ -153,14 +236,17 @@ const StocksInvest = () => {
       if (!timeSeries) return null;
 
       const labels = Object.keys(timeSeries).slice(0, 7).reverse();
-      const prices = labels.map((date) => parseFloat(timeSeries[date]["4. close"]));
+      const pricesUSD = labels.map((date) =>
+        parseFloat(timeSeries[date]["4. close"])
+      );
+      const pricesINR = pricesUSD.map((price) => price * exchangeRate);
 
       return {
         labels,
         datasets: [
           {
-            label: `${symbol} Price`,
-            data: prices,
+            label: `${symbol} Price (₹)`,
+            data: pricesINR,
             borderColor: "#3B82F6",
             backgroundColor: "rgba(59, 130, 246, 0.2)",
             fill: false,
@@ -174,7 +260,52 @@ const StocksInvest = () => {
   };
 
   const handleBuyStock = (stock) => {
-    alert(`Buying ${stock.name} (${stock.symbol}) at $${stock.price}`);
+    setSelectedStock(stock);
+    setShowBuyModal(true);
+  };
+
+  const confirmBuyStock = async (e) => {
+    e.preventDefault();
+    if (!selectedBankAccountId) {
+      alert("Please select a bank account.");
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(
+        "http://localhost:5000/api/bank-accounts/buy-stock",
+        {
+          bankAccountId: selectedBankAccountId,
+          stockSymbol: selectedStock.symbol,
+          stockName: selectedStock.name,
+          amount: parseFloat(selectedStock.price),
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+
+      // Update the bank account balance in the UI
+      setBankAccounts(
+        bankAccounts.map((account) =>
+          account._id === selectedBankAccountId
+            ? { ...account, balance: data.updatedAccount.balance }
+            : account
+        )
+      );
+
+      // Refresh purchased stocks
+      await fetchPurchasedStocks();
+
+      setShowBuyModal(false);
+      setSelectedBankAccountId("");
+      setSelectedStock(null);
+      alert(
+        `Successfully purchased ${selectedStock.name} (${selectedStock.symbol}) for ₹${selectedStock.price}`
+      );
+    } catch (error) {
+      alert("Error purchasing stock: " + error.response?.data?.error);
+    }
   };
 
   const handleSearch = (e) => {
@@ -192,15 +323,25 @@ const StocksInvest = () => {
       },
       title: {
         display: true,
-        text: "Stock Price (Last 7 Days)",
+        text: "Stock Price (Last 7 Days) in ₹",
         color: "#FFFFFF",
         font: { size: 16 },
       },
-      tooltip: { backgroundColor: "#1F2937" },
+      tooltip: {
+        backgroundColor: "#1F2937",
+        callbacks: {
+          label: (context) => `₹${context.parsed.y.toFixed(2)}`,
+        },
+      },
     },
     scales: {
       x: { ticks: { color: "#D1D5DB" } },
-      y: { ticks: { color: "#D1D5DB" } },
+      y: {
+        ticks: {
+          color: "#D1D5DB",
+          callback: (value) => `₹${value.toFixed(2)}`,
+        },
+      },
     },
   };
 
@@ -236,9 +377,47 @@ const StocksInvest = () => {
         <p className="text-center text-red-500 text-lg font-medium">{error}</p>
       )}
 
-      {/* Stock List */}
+      {/* Purchased Stocks */}
       <div className="mb-8">
-        <h3 className="text-2xl font-bold text-blue-300 mb-4">Search Results</h3>
+        <h3 className="text-2xl font-bold text-blue-300 mb-4">
+          Your Portfolio
+        </h3>
+        {purchasedStocks.length > 0 ? (
+          <div className="space-y-4">
+            {purchasedStocks.map((stock) => (
+              <div
+                key={stock._id}
+                className="bg-gray-900 rounded-lg shadow-lg border border-gray-800 p-4 flex justify-between items-center"
+              >
+                <div>
+                  <h4 className="text-lg font-semibold text-white">
+                    {stock.name}
+                  </h4>
+                  <p className="text-gray-400">Symbol: {stock.symbol}</p>
+                  <p className="text-gray-400">Quantity: {stock.quantity}</p>
+                  <p className="text-gray-400">
+                    Purchase Price: ₹{stock.purchasePrice.toFixed(2)}
+                  </p>
+                  <p className="text-gray-400">
+                    Purchase Date:{" "}
+                    {new Date(stock.purchaseDate).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-400 text-center">
+            You haven't purchased any stocks yet.
+          </p>
+        )}
+      </div>
+
+      {/* Stock Search Results */}
+      <div className="mb-8">
+        <h3 className="text-2xl font-bold text-blue-300 mb-4">
+          Search Results
+        </h3>
         {stocks.length > 0 ? (
           <div className="space-y-6">
             {stocks.map((stock, index) => (
@@ -256,17 +435,23 @@ const StocksInvest = () => {
                         </h4>
                         <p className="text-gray-400">Symbol: {stock.symbol}</p>
                         <p className="text-blue-300 font-medium">
-                          Price: ${stock.price || "Fetching..."}
+                          Price: ₹{stock.price || "Fetching..."}
                         </p>
                         {stock.suggestion ? (
                           <div className="text-sm">
                             <p className="text-gray-300">
-                              <strong className="text-blue-400">Recommendation:</strong>{" "}
+                              <strong className="text-blue-400">
+                                Recommendation:
+                              </strong>{" "}
                               <span
                                 className={
-                                  stock.suggestion.recommendation.includes("Buy")
+                                  stock.suggestion.recommendation.includes(
+                                    "Buy"
+                                  )
                                     ? "text-blue-500"
-                                    : stock.suggestion.recommendation.includes("Avoid")
+                                    : stock.suggestion.recommendation.includes(
+                                        "Avoid"
+                                      )
                                     ? "text-red-500"
                                     : "text-gray-400"
                                 }
@@ -294,7 +479,9 @@ const StocksInvest = () => {
                             </p>
                           </div>
                         ) : (
-                          <p className="text-gray-400 text-sm">Loading suggestion...</p>
+                          <p className="text-gray-400 text-sm">
+                            Loading suggestion...
+                          </p>
                         )}
                       </div>
                       <button
@@ -308,9 +495,14 @@ const StocksInvest = () => {
                     {/* Right: Graph */}
                     <div className="w-1/2 p-4">
                       {chartData[stock.symbol] ? (
-                        <Line data={chartData[stock.symbol]} options={chartOptions} />
+                        <Line
+                          data={chartData[stock.symbol]}
+                          options={chartOptions}
+                        />
                       ) : (
-                        <p className="text-gray-400 text-center">Loading chart...</p>
+                        <p className="text-gray-400 text-center">
+                          Loading chart...
+                        </p>
                       )}
                     </div>
                   </>
@@ -319,9 +511,14 @@ const StocksInvest = () => {
                     {/* Left: Graph */}
                     <div className="w-1/2 p-4">
                       {chartData[stock.symbol] ? (
-                        <Line data={chartData[stock.symbol]} options={chartOptions} />
+                        <Line
+                          data={chartData[stock.symbol]}
+                          options={chartOptions}
+                        />
                       ) : (
-                        <p className="text-gray-400 text-center">Loading chart...</p>
+                        <p className="text-gray-400 text-center">
+                          Loading chart...
+                        </p>
                       )}
                     </div>
                     {/* Right: Info */}
@@ -332,17 +529,23 @@ const StocksInvest = () => {
                         </h4>
                         <p className="text-gray-400">Symbol: {stock.symbol}</p>
                         <p className="text-blue-300 font-medium">
-                          Price: ${stock.price || "Fetching..."}
+                          Price: ₹{stock.price || "Fetching..."}
                         </p>
                         {stock.suggestion ? (
                           <div className="text-sm">
                             <p className="text-gray-300">
-                              <strong className="text-blue-400">Recommendation:</strong>{" "}
+                              <strong className="text-blue-400">
+                                Recommendation:
+                              </strong>{" "}
                               <span
                                 className={
-                                  stock.suggestion.recommendation.includes("Buy")
+                                  stock.suggestion.recommendation.includes(
+                                    "Buy"
+                                  )
                                     ? "text-blue-500"
-                                    : stock.suggestion.recommendation.includes("Avoid")
+                                    : stock.suggestion.recommendation.includes(
+                                        "Avoid"
+                                      )
                                     ? "text-red-500"
                                     : "text-gray-400"
                                 }
@@ -370,7 +573,9 @@ const StocksInvest = () => {
                             </p>
                           </div>
                         ) : (
-                          <p className="text-gray-400 text-sm">Loading suggestion...</p>
+                          <p className="text-gray-400 text-sm">
+                            Loading suggestion...
+                          </p>
                         )}
                       </div>
                       <button
@@ -392,6 +597,57 @@ const StocksInvest = () => {
           </p>
         )}
       </div>
+
+      {/* Buy Stock Modal */}
+      {showBuyModal && selectedStock && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full border border-gray-200">
+            <h3 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+              Buy {selectedStock.name} ({selectedStock.symbol})
+            </h3>
+            <p className="text-gray-700 mb-4">Price: ₹{selectedStock.price}</p>
+            <form onSubmit={confirmBuyStock}>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-medium mb-2">
+                  Select Bank Account
+                </label>
+                <select
+                  value={selectedBankAccountId}
+                  onChange={(e) => setSelectedBankAccountId(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">-- Select a bank account --</option>
+                  {bankAccounts.map((account) => (
+                    <option key={account._id} value={account._id}>
+                      {account.name} (₹{account.balance.toFixed(2)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-end gap-4">
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-200"
+                >
+                  Confirm Purchase
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowBuyModal(false);
+                    setSelectedBankAccountId("");
+                    setSelectedStock(null);
+                  }}
+                  className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

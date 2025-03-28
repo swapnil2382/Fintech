@@ -1,8 +1,8 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate, Routes, Route } from "react-router-dom";
+import { FaBell } from "react-icons/fa"; // Importing bell icon from react-icons
 import Chat from "./Chat";
-import Tax from "./Tax";
 import Fraud from "./Fraud";
 import Investments from "./Investments";
 import Goals from "./Goals";
@@ -15,6 +15,11 @@ import FixedDeposits from "./FixedDeposits";
 import LoanManager from "./LoanManager";
 import FinancialHealthScore from "./FinancialHealthScore";
 import StocksInvest from "./Stockinvest";
+import TaxFiling from "./TaxFiling";
+import Notifications from "./Notifications";
+import FinancialInsights from "./FinancialInsights";
+import Calculator from "./Calculator";
+import Dashboard from "./Dashboard";
 
 const MainHome = () => {
   const { user, logout, loading } = useContext(AuthContext);
@@ -26,36 +31,33 @@ const MainHome = () => {
   };
 
   if (loading) {
-    return <div className="text-center mt-20">Loading...</div>;
+    return <div className="text-center mt-20 text-white">Loading...</div>;
   }
 
-  // Sidebar links (limited to specified options)
   const sidebarLinks = [
-    { to: "/tax", label: "Tax Overview" },
-    { to: "/bank-accounts", label: "Accounts" }, // Renamed from "Bank Balance"
+    { to: "/dashboard", label: "Port-Folio" },
+    { to: "/bank-accounts", label: "Accounts" },
     { to: "/expenditure", label: "Expenditure" },
     { to: "/transactions", label: "Transactions" },
+    { to: "/calculator", label: "Tax Calculator" },
   ];
 
-  // Full navigation links (for top navbar and routing)
   const navLinks = [
     { to: "/fraud", label: "Fraud Alerts" },
     { to: "/investments", label: "Investments" },
     { to: "/goals", label: "Goals" },
-    { to: "/land", label: "" }, // Hidden in UI, route active
-    { to: "/mutual-funds", label: "" }, // Hidden in UI, route active
-    { to: "/fixed-deposits", label: "" }, // Hidden in UI, route active
-    { to: "/stocksinvest", label: "" }, // Hidden in UI, route active
     { to: "/loan", label: "Loan Manager" },
     { to: "/finance", label: "Financial Health" },
+    { to: "/insights", label: "Financial Insights" },
+    { to: "/tax-filing", label: "Taxes Invoice" },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar (Fixed) */}
-      <div className="w-64 bg-white shadow-lg flex flex-col justify-between fixed h-full top-0 left-0">
+    <div className="min-h-screen bg-black flex">
+      {/* Sidebar */}
+      <div className="w-64 bg-gray-900 shadow-lg flex flex-col justify-between fixed h-full top-0 left-0">
         <div>
-          <div className="p-4 border-b">
+          <div className="p-4 border-b border-gray-700">
             <h2 className="text-xl font-bold text-blue-500">
               {user?.name || "User"}
             </h2>
@@ -65,44 +67,47 @@ const MainHome = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className="block py-2 px-4 text-gray-700 hover:bg-blue-500 hover:text-white transition duration-200"
+                className="block py-2 px-4 text-gray-300 hover:bg-blue-500 hover:text-white transition duration-200"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
         </div>
-        <div className="p-4 border-t">
+        <div className="p-4 border-t border-gray-700">
           <button
             onClick={handleLogout}
-            className="w-full bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 transition duration-200"
+            className="w-full bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition duration-200"
           >
             Logout
           </button>
         </div>
       </div>
 
-      {/* Main Content (Adjusted to sit beside sidebar) */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col ml-64">
-        {/* Top Navbar */}
-        <nav className="bg-white shadow-lg">
+        {/* Navbar */}
+        <nav className="bg-gray-900 shadow-lg">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex justify-between h-16">
-             
-              <div className="flex items-center space-x-4">
+            <div className="flex justify-between h-16 items-center">
+              <div className="flex space-x-4">
                 {user &&
-                  navLinks
-                    .filter((link) => link.label !== "") // Only show links with labels
-                    .map((link) => (
-                      <Link
-                        key={link.to}
-                        to={link.to}
-                        className="text-gray-700 hover:bg-blue-500 hover:text-white px-3 py-2 rounded-md transition duration-200"
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
+                  navLinks.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className="text-gray-300 hover:bg-blue-500 hover:text-white px-3 py-2 rounded-md transition duration-200"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
               </div>
+              {/* Notification Bell */}
+              {user && (
+                <Link to="/notifications" className="text-gray-300 hover:text-blue-500 transition duration-200 flex items-center pr-5">
+                  <FaBell className="w-6 h-6" />
+                </Link>
+              )}
             </div>
           </div>
         </nav>
@@ -114,14 +119,14 @@ const MainHome = () => {
               <Route
                 path="/"
                 element={
-                  <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                  <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center text-white">
                     <p className="mb-4">
                       Manage your finances efficiently with AI-powered insights.
                     </p>
                   </div>
                 }
               />
-              <Route path="/tax" element={<Tax />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/fraud" element={<Fraud />} />
               <Route path="/investments" element={<Investments />} />
               <Route path="/goals" element={<Goals />} />
@@ -134,6 +139,10 @@ const MainHome = () => {
               <Route path="/stocksinvest" element={<StocksInvest />} />
               <Route path="/loan" element={<LoanManager />} />
               <Route path="/finance" element={<FinancialHealthScore />} />
+              <Route path="/tax-filing" element={<TaxFiling />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/insights" element={<FinancialInsights />} />
+              <Route path="/calculator" element={<Calculator />} />
             </Routes>
           </div>
           <Chat />

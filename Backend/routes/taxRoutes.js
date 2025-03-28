@@ -1,86 +1,202 @@
 const express = require("express");
+const BankAccount = require("../models/BankAccount");
+const Transaction = require("../models/Transaction");
+const Stock = require("../models/Stock");
+const Tax = require("../models/Tax");
+const User = require("../models/User");
 const authMiddleware = require("../middleware/authMiddleware");
-const axios = require("axios");
+
 const router = express.Router();
 
-router.get("/summary", authMiddleware, async (req, res) => {
+// Calculate tax liability for a specific bank account
+router.get("/calculate", authMiddleware, async (req, res) => {
   try {
-    const token = req.headers.authorization.split(" ")[1];
+    const userId = req.user.id;
+    const financialYear = "2024-25";
     const bankAccountId = req.query.bankAccountId;
-    console.log("User ID:", req.user.id, "Bank Account ID:", bankAccountId || "None provided");
 
-    // Fetch all transactions
-    let transactions = [];
-    try {
-      const transactionsResponse = await axios.get("http://localhost:5000/api/transactions", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      transactions = transactionsResponse.data || [];
-      console.log("Raw transactions:", transactions.map(txn => ({ _id: txn._id, amount: txn.amount, type: txn.type, bankAccount: txn.bankAccount?._id || txn.bankAccount, category: txn.category })));
-    } catch (error) {
-      console.error("Failed to fetch transactions:", error.message);
+    if (!bankAccountId) {
+      return res.status(400).json({ error: "Bank account ID is required" });
     }
 
-    // Filter incomes
-    let incomes = transactions.filter(txn => txn.type === "income");
-    console.log("Incomes before filter:", incomes.map(inc => ({ _id: inc._id, amount: inc.amount, bankAccount: inc.bankAccount?._id || inc.bankAccount })));
-    if (bankAccountId) {
-      incomes = incomes.filter((inc) => (inc.bankAccount._id || inc.bankAccount).toString() === bankAccountId);
-    }
-    console.log("Filtered incomes:", incomes.map(inc => ({ _id: inc._id, amount: inc.amount, bankAccount: inc.bankAccount?._id || inc.bankAccount })));
-    const totalIncome = incomes.reduce((sum, inc) => sum + (inc.amount || 0), 0);
-    console.log("Total Income:", totalIncome);
-
-    // Filter expenses
-    let expenses = transactions.filter(txn => txn.type === "expense");
-    console.log("Expenses before filter:", expenses.map(exp => ({ _id: exp._id, amount: exp.amount, category: exp.category, bankAccount: exp.bankAccount?._id || exp.bankAccount })));
-    if (bankAccountId) {
-      expenses = expenses.filter((exp) => (exp.bankAccount._id || exp.bankAccount).toString() === bankAccountId);
-    }
-    console.log("Filtered expenses:", expenses.map(exp => ({ _id: exp._id, amount: exp.amount, category: exp.category, bankAccount: exp.bankAccount?._id || exp.bankAccount })));
-    const deductibleTransactions = expenses
-      .filter((exp) => ["Rent", "Transport"].includes(exp.category))
-      .reduce((sum, exp) => sum + (exp.amount || 0), 0);
-    console.log("Deductible transactions:", deductibleTransactions);
-
-    const taxableIncome = Math.max(totalIncome - deductibleTransactions, 0);
-    let tax = 0;
-    if (taxableIncome <= 50000) tax = taxableIncome * 0.1;
-    else tax = 5000 + (taxableIncome - 50000) * 0.2;
-
-    const deductionInsight =
-      deductibleTransactions > 0
-        ? `Your ₹${deductibleTransactions} in deductible transactions (e.g., Rent, Transport) reduced your tax by ₹${(deductibleTransactions * 0.1).toFixed(2)}.`
-        : "Add deductible transactions (e.g., Rent, Transport) to lower your tax.";
-
-    const userResponse = await axios.get("http://localhost:5000/api/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
+    const bankAccount = await BankAccount.findOne({
+      _id: bankAccountId,
+      user: userId,
     });
-    const user = userResponse.data;
 
-    const formData = {
-      name: user.name || "User Name",
-      income: totalIncome,
-      deductions: deductibleTransactions,
-      taxableIncome,
-      taxDue: tax,
-      filingDate: new Date().toLocaleDateString(),
-      bankAccountId: bankAccountId || "All Accounts",
-    };
+    if (!bankAccount) {
+      return res.status(404).json({ error: "Bank account not found" });
+    }
 
-    const response = {
+    const transactions = await Transaction.find({
+      user: userId,
+      bankAccount: bankAccountId,
+    });
+
+    // Process stock transactions
+    const stockTransactions = transactions.filter(
+      (txn) => txn.category === "Stock Purchase"
+    );
+
+    const stockSymbols = stockTransactions
+      .map((txn) => {
+        const match = txn.description.match(/Stock Purchase: (.+) \((.+)\)/);
+        if (!match) {
+          console.warn(`Invalid stock purchase description format: ${txn.description}`);
+          return null;
+        }
+        return match[2];
+      })
+      .filter(Boolean);
+
+    const stocks = await Stock.find({
+      user: userId,
+      symbol: { $in: stockSymbols },
+    });
+
+    const totalIncomeFromBank = (bankAccount.income || 0) * 12;
+
+    let capitalGains = 0;
+    let stcgTax = 0;
+
+    if (stocks.length > 0) {
+      for (const stock of stocks) {
+        if (!stock.purchasePrice || !stock.quantity) {
+          console.warn(`Skipping stock with missing data: ${JSON.stringify(stock)}`);
+          continue;
+        }
+
+        const currentPrice = stock.purchasePrice * 1.1;
+        const gain = (currentPrice - stock.purchasePrice) * stock.quantity;
+        capitalGains += gain > 0 ? gain : 0;
+      }
+      stcgTax = capitalGains * 0.15;
+    }
+
+    const totalIncome = totalIncomeFromBank + capitalGains;
+
+    const housingExpenses = transactions
+      .filter((txn) => txn.category === "Housing")
+      .reduce((sum, txn) => sum + txn.amount, 0);
+      
+    const deductions = Math.min(housingExpenses, 50000) + 75000;
+    const taxableIncome = Math.max(totalIncome - deductions, 0);
+
+    let tax = 0;
+    if (taxableIncome > 300000) {
+      if (taxableIncome <= 600000) {
+        tax = (taxableIncome - 300000) * 0.05;
+      } else if (taxableIncome <= 900000) {
+        tax = 300000 * 0.05 + (taxableIncome - 600000) * 0.1;
+      } else if (taxableIncome <= 1200000) {
+        tax = 300000 * 0.05 + 300000 * 0.1 + (taxableIncome - 900000) * 0.15;
+      } else if (taxableIncome <= 1500000) {
+        tax = 300000 * 0.05 + 300000 * 0.1 + 300000 * 0.15 + (taxableIncome - 1200000) * 0.2;
+      } else {
+        tax = 300000 * 0.05 + 300000 * 0.1 + 300000 * 0.15 + 300000 * 0.2 + (taxableIncome - 1500000) * 0.3;
+      }
+    }
+
+    tax += stcgTax;
+    const cess = tax * 0.04;
+    const totalTaxLiability = tax + cess;
+
+    const taxRecord = new Tax({
+      user: userId,
+      financialYear,
       totalIncome,
-      deductibleTransactions,
+      deductions,
       taxableIncome,
-      estimatedTax: tax,
-      deductionInsight,
-      formData,
-    };
-    console.log("Final response:", response);
-    res.json(response);
+      taxLiability: totalTaxLiability,
+    });
+
+    await taxRecord.save();
+
+    res.json({
+      totalIncome,
+      deductions,
+      taxableIncome,
+      taxLiability: totalTaxLiability,
+      capitalGains,
+      stcgTax,
+    });
   } catch (error) {
-    console.error("Error calculating tax summary:", error.message, error.stack);
-    res.status(500).json({ error: "Error calculating tax summary", details: error.message });
+    console.error("Error calculating tax:", error);
+    res.status(500).json({ error: "Error calculating tax", details: error.message });
+  }
+});
+
+// Generate pre-filled tax form for a specific bank account
+router.get("/form", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const bankAccountId = req.query.bankAccountId;
+
+    if (!bankAccountId) {
+      return res.status(400).json({ error: "Bank account ID is required" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const bankAccount = await BankAccount.findOne({
+      _id: bankAccountId,
+      user: userId,
+    });
+
+    if (!bankAccount) {
+      return res.status(404).json({ error: "Bank account not found" });
+    }
+
+    const transactions = await Transaction.find({
+      user: userId,
+      bankAccount: bankAccountId,
+    });
+
+    const stockTransactions = transactions.filter(
+      (txn) => txn.category === "Stock Purchase"
+    );
+
+    const stockSymbols = stockTransactions
+      .map((txn) => {
+        const match = txn.description.match(/Stock Purchase: (.+) \((.+)\)/);
+        if (!match) {
+          console.warn(`Invalid stock purchase description format: ${txn.description}`);
+          return null;
+        }
+        return match[2];
+      })
+      .filter(Boolean);
+
+    const stocks = await Stock.find({
+      user: userId,
+      symbol: { $in: stockSymbols },
+    });
+
+    const totalIncomeFromBank = (bankAccount.income || 0) * 12;
+
+    let capitalGains = 0;
+    for (const stock of stocks) {
+      if (!stock.purchasePrice || !stock.quantity) continue;
+      capitalGains += (stock.purchasePrice * 1.1 - stock.purchasePrice) * stock.quantity;
+    }
+
+    const totalIncome = totalIncomeFromBank + capitalGains;
+
+    const taxForm = {
+      financialYear: "2024-25",
+      name: user.username || "Unknown User",
+      pan: "ABCDE1234F",
+      bankAccountName: bankAccount.name,
+      totalIncome: totalIncome.toFixed(2),
+    };
+
+    res.json(taxForm);
+  } catch (error) {
+    console.error("Error generating tax form:", error);
+    res.status(500).json({ error: "Error generating tax form", details: error.message });
   }
 });
 

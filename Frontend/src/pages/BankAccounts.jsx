@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { FaCreditCard, FaWallet, FaBuilding } from "react-icons/fa";
+import {
+  FaCreditCard,
+  FaWallet,
+  FaBuilding,
+  FaPlus,
+  FaTrash,
+} from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const BankAccounts = () => {
@@ -12,6 +18,9 @@ const BankAccounts = () => {
     balance: "",
     income: "",
   });
+  const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
+  const [addMoneyAmount, setAddMoneyAmount] = useState("");
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -61,6 +70,69 @@ const BankAccounts = () => {
     }
   };
 
+  const handleAddMoney = async (e) => {
+    e.preventDefault();
+    const amount = parseFloat(addMoneyAmount);
+
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid amount.");
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(
+        "http://localhost:5000/api/bank-accounts/add-money",
+        { bankAccountId: selectedAccountId, amount },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+
+      setAccounts(
+        accounts.map((account) =>
+          account._id === selectedAccountId
+            ? { ...account, balance: data.updatedAccount.balance }
+            : account
+        )
+      );
+      setShowAddMoneyModal(false);
+      setAddMoneyAmount("");
+      setSelectedAccountId(null);
+      alert("Money added successfully!");
+    } catch (error) {
+      alert("Error adding money: " + error.response?.data?.error);
+    }
+  };
+
+  const handleDeleteAccount = async (accountId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this account? This will also delete all associated transactions."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await axios.delete(
+        `http://localhost:5000/api/bank-accounts/${accountId}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+
+      setAccounts(accounts.filter((account) => account._id !== accountId));
+      alert("Account deleted successfully!");
+    } catch (error) {
+      alert("Error deleting account: " + error.response?.data?.error);
+    }
+  };
+
+  const openAddMoneyModal = (accountId) => {
+    setSelectedAccountId(accountId);
+    setShowAddMoneyModal(true);
+  };
+
   const getIcon = (type) => {
     switch (type) {
       case "Bank Account":
@@ -77,29 +149,27 @@ const BankAccounts = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-black min-h-screen text-white">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-3xl font-bold text-gray-800">
-            Connected Accounts
-          </h2>
-          <p className="text-gray-600">
+          <h2 className="text-3xl font-bold">Connected Accounts</h2>
+          <p className="text-gray-400">
             Manage your linked financial accounts and connections
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-200">
+          <button className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-200">
             <span className="text-lg">⟳</span> Sync All
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition duration-200"
+            className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-200"
           >
             <span className="text-lg">+</span> Add Account
           </button>
           <Link
             to="/expenditure"
-            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+            className="flex items-center gap-2 bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
           >
             Track Expenditure
           </Link>
@@ -110,33 +180,40 @@ const BankAccounts = () => {
         {accounts.map((account) => (
           <div
             key={account._id}
-            className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200"
+            className="flex items-center justify-between bg-blue-950 p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200"
           >
             <div className="flex items-center gap-4">
               {getIcon(account.type)}
               <div>
-                <h3 className="text-lg font-semibold text-gray-800">
-                  {account.name}
-                </h3>
-                <p className="text-sm text-gray-600">{account.type}</p>
+                <h3 className="text-lg font-semibold">{account.name}</h3>
+                <p className="text-sm text-gray-400">{account.type}</p>
                 <p className="text-sm text-gray-500">
                   Last synced: {account.lastSynced}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <p className="text-lg font-medium text-gray-800">
-                ₹{account.balance.toFixed(2)}
-              </p>
+              <p className="text-lg font-medium">₹{account.balance.toFixed(2)}</p>
               <span
-                className={`text-sm ${
-                  account.status === "Connected"
+                className={`text-sm ${account.status === "Connected"
                     ? "text-green-500"
                     : "text-red-500"
-                } flex items-center gap-1`}
+                  } flex items-center gap-1`}
               >
                 {account.status === "Connected" ? "✔" : "✖"} {account.status}
               </span>
+              <button
+                onClick={() => openAddMoneyModal(account._id)}
+                className="flex items-center gap-2 bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition duration-200"
+              >
+                <FaPlus /> Add Money
+              </button>
+              <button
+                onClick={() => handleDeleteAccount(account._id)}
+                className="flex items-center gap-2 bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-200"
+              >
+                <FaTrash /> Delete
+              </button>
             </div>
           </div>
         ))}
@@ -234,6 +311,54 @@ const BankAccounts = () => {
           </div>
         </div>
       )}
+
+      {/* Add Money Modal */}
+      {showAddMoneyModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center">
+    <div className="p-6 rounded-lg shadow-lg max-w-md w-full border border-blue-600 bg-gray-900">
+      <h3 className="text-2xl font-bold text-white mb-4 text-center">
+        Add Money to Account
+      </h3>
+      <form onSubmit={handleAddMoney} className="text-white">
+        <div className="mb-4">
+          <label className="block text-white font-medium mb-2">
+            Amount to Add (₹)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={addMoneyAmount}
+            onChange={(e) => setAddMoneyAmount(e.target.value)}
+            className="w-full border border-blue-500 p-2 rounded-lg bg-black text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="e.g., 5000"
+            required
+          />
+        </div>
+        <div className="flex justify-end gap-4">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+          >
+            Add Money
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowAddMoneyModal(false);
+              setAddMoneyAmount("");
+              setSelectedAccountId(null);
+            }}
+            className="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition duration-200"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

@@ -7,6 +7,8 @@ import Register from "./pages/Register";
 const App = () => {
   return (
     <Router>
+     
+      
       <AuthProvider>
         <Routes>
           <Route path="/*" element={<MainHome />} />
