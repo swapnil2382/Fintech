@@ -18,6 +18,7 @@ import {
   FaCheckCircle,
   FaLightbulb,
 } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 // Register Chart.js components
 ChartJS.register(
@@ -36,9 +37,11 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [displayCurrency, setDisplayCurrency] = useState("INR");
+  const [stockData, setStockData] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
+    fetchStockData();
   }, []);
 
   const fetchDashboardData = async () => {
@@ -58,6 +61,23 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Mock function to fetch stock data (replace with real API in production)
+  const fetchStockData = async () => {
+    // In production, use an API like Alpha Vantage or Finnhub
+    // For now, we'll use static data to simulate IBM and AAPL stock prices
+    const mockStockData = {
+      IBM: {
+        price: 6586, // Mock price in INR
+        changePercent: -0.45, // Mock percentage change
+      },
+      AAPL: {
+        price: 217, // Mock price in INR
+        changePercent: 0.72, // Mock percentage change
+      },
+    };
+    setStockData(mockStockData);
   };
 
   // Currency symbols mapping
@@ -267,20 +287,61 @@ const Dashboard = () => {
               </p>
             </div>
 
-            {/* Savings Goal */}
+            {/* Stock Market Overview */}
             <div className="bg-gray-800 bg-opacity-80 p-6 rounded-lg shadow-lg border border-purple-500">
-              <h3 className="text-lg font-semibold text-gray-300">
-                Savings Goal
+              <h3 className="text-lg font-semibold text-gray-300 mb-4">
+                Stock Market Overview
               </h3>
-              <p className="text-2xl font-bold text-white">
-                {currencySymbols[displayCurrency]}
-                {convertAmount(dashboardData.savings)} /{" "}
-                {currencySymbols[displayCurrency]}
-                {convertAmount(125000)}
-              </p>
-              <p className="text-sm text-gray-400">
-                {((dashboardData.savings / 125000) * 100).toFixed(1)}% of goal
-              </p>
+              {stockData ? (
+                <div className="flex justify-between items-center">
+                  {/* IBM */}
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-gray-300">IBM</p>
+                    <p
+                      className={`text-sm font-semibold ${
+                        stockData.IBM.changePercent >= 0
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {stockData.IBM.changePercent >= 0 ? "+" : ""}
+                      {stockData.IBM.changePercent}%
+                    </p>
+                    <p className="text-lg font-bold text-white">
+                      {currencySymbols[displayCurrency]}
+                      {convertAmount(stockData.IBM.price)}
+                    </p>
+                  </div>
+                  {/* AAPL */}
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-gray-300">AAPL</p>
+                    <p
+                      className={`text-sm font-semibold ${
+                        stockData.AAPL.changePercent >= 0
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {stockData.AAPL.changePercent >= 0 ? "+" : ""}
+                      {stockData.AAPL.changePercent}%
+                    </p>
+                    <p className="text-lg font-bold text-white">
+                      {currencySymbols[displayCurrency]}
+                      {convertAmount(stockData.AAPL.price)}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-gray-400">Loading stock data...</p>
+              )}
+              <div className="mt-4 text-center">
+                <Link
+                  to="/home/stocksinvest"
+                  className="text-purple-400 hover:text-purple-300 transition duration-200 text-sm"
+                >
+                  See more in markets
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -370,7 +431,6 @@ const Dashboard = () => {
                   </div>
                 ))}
               </div>
-              
             </div>
           </div>
         </>
