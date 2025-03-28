@@ -201,8 +201,8 @@ const StocksInvest = () => {
           {
             label: `${symbol} Price (₹)`,
             data: pricesINR,
-            borderColor: "#8A2BE2",
-            backgroundColor: "rgba(138, 43, 226, 0.2)",
+            borderColor: "#9333ea", // purple-600
+            backgroundColor: "rgba(147, 51, 234, 0.2)", // purple-600 with opacity
             fill: false,
           },
         ],
@@ -265,24 +265,24 @@ const StocksInvest = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top", labels: { color: "#FFFFFF" } },
+      legend: { position: "top", labels: { color: "#e9d5ff" } }, // purple-200
       title: {
         display: true,
         text: "Stock Price (Last 7 Days) in ₹",
-        color: "#FFFFFF",
+        color: "#e9d5ff", // purple-200
         font: { size: 16 },
       },
-      tooltip: { backgroundColor: "#4B0082" },
+      tooltip: { backgroundColor: "#6b21a8" }, // purple-800
     },
     scales: {
-      x: { ticks: { color: "#D1D5DB" } },
-      y: { ticks: { color: "#D1D5DB" } },
+      x: { ticks: { color: "#d8b4fe" } }, // purple-200
+      y: { ticks: { color: "#d8b4fe" } }, // purple-200
     },
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A1A] to-[#4B0082] p-6 text-white font-sans">
-      <h2 className="text-4xl font-extrabold text-[#8A2BE2] mb-8 text-center tracking-tight drop-shadow-md">
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black p-6 text-white font-sans">
+      <h2 className="text-4xl font-extrabold text-transparent bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text mb-8 text-center tracking-tight drop-shadow-md">
         Stocks Invest Dashboard
       </h2>
 
@@ -294,11 +294,11 @@ const StocksInvest = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search for a stock (e.g., AAPL, TSLA)"
-            className="w-full px-4 py-3 bg-[#3A3A3A] border border-[#8A2BE2] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#8A2BE2] text-white placeholder-gray-500 transition duration-200"
+            className="w-full px-4 py-3 bg-gray-900 border border-purple-500/50 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 text-white placeholder-gray-400 transition duration-200"
           />
           <button
             type="submit"
-            className="px-6 py-3 bg-[#8A2BE2] text-white font-semibold rounded-lg shadow-md hover:bg-[#6A0DAD] transition duration-200"
+            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:from-purple-600 hover:to-indigo-700 transition duration-200"
           >
             Search
           </button>
@@ -306,7 +306,7 @@ const StocksInvest = () => {
       </form>
 
       {loading && (
-        <p className="text-center text-gray-400 text-lg animate-pulse">Loading...</p>
+        <p className="text-center text-purple-200 text-lg animate-pulse">Loading...</p>
       )}
       {error && (
         <p className="text-center text-red-400 text-lg font-medium">{error}</p>
@@ -314,7 +314,7 @@ const StocksInvest = () => {
 
       {/* Purchased Stocks */}
       <div className="mb-8">
-        <h3 className="text-2xl font-bold text-[#8A2BE2] mb-4 drop-shadow-sm">
+        <h3 className="text-2xl font-bold text-white mb-4 drop-shadow-sm">
           Your Portfolio
         </h3>
         {purchasedStocks.length > 0 ? (
@@ -322,22 +322,22 @@ const StocksInvest = () => {
             {purchasedStocks.map((stock) => (
               <div
                 key={stock._id}
-                className="bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] rounded-xl shadow-lg border border-[#8A2BE2] p-4"
+                className="bg-gradient-to-br from-gray-900 to-purple-950 rounded-2xl shadow-lg border border-purple-500/30 p-4 hover:shadow-2xl transition-all duration-300"
               >
                 <h4 className="text-lg font-semibold text-white">{stock.name}</h4>
-                <p className="text-gray-300">Symbol: {stock.symbol}</p>
-                <p className="text-gray-300">Quantity: {stock.quantity}</p>
-                <p className="text-gray-300">
+                <p className="text-purple-100">Symbol: {stock.symbol}</p>
+                <p className="text-purple-100">Quantity: {stock.quantity}</p>
+                <p className="text-purple-100">
                   Purchase Price: ₹{stock.purchasePrice.toFixed(2)}
                 </p>
-                <p className="text-gray-300">
+                <p className="text-purple-100">
                   Date: {new Date(stock.purchaseDate).toLocaleDateString()}
                 </p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-400 text-center">
+          <p className="text-purple-200 text-center">
             You haven't purchased any stocks yet.
           </p>
         )}
@@ -345,7 +345,7 @@ const StocksInvest = () => {
 
       {/* Stock Search Results */}
       <div className="mb-8">
-        <h3 className="text-2xl font-bold text-[#8A2BE2] mb-4 drop-shadow-sm">
+        <h3 className="text-2xl font-bold text-white mb-4 drop-shadow-sm">
           Search Results
         </h3>
         {stocks.length > 0 ? (
@@ -353,7 +353,7 @@ const StocksInvest = () => {
             {stocks.map((stock, index) => (
               <div
                 key={stock.symbol}
-                className="bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] rounded-xl shadow-lg border border-[#8A2BE2] h-[40vh] flex flex-col md:flex-row overflow-hidden"
+                className="bg-gradient-to-br from-gray-900 to-purple-950 rounded-2xl shadow-lg border border-purple-500/30 h-[40vh] flex flex-col md:flex-row overflow-hidden hover:shadow-2xl transition-all duration-300"
               >
                 {index % 2 === 0 ? (
                   <>
@@ -361,14 +361,14 @@ const StocksInvest = () => {
                     <div className="w-full md:w-1/2 p-6 flex flex-col justify-between">
                       <div className="space-y-2">
                         <h4 className="text-xl font-semibold text-white">{stock.name}</h4>
-                        <p className="text-gray-300">Symbol: {stock.symbol}</p>
-                        <p className="text-[#8A2BE2] font-medium">
+                        <p className="text-purple-100">Symbol: {stock.symbol}</p>
+                        <p className="text-purple-400 font-medium">
                           Price: ₹{stock.price || "Fetching..."}
                         </p>
                         {stock.suggestion ? (
-                          <div className="text-sm text-gray-200">
+                          <div className="text-sm text-purple-100">
                             <p>
-                              <strong className="text-[#8A2BE2]">Recommendation:</strong>{" "}
+                              <strong className="text-purple-400">Recommendation:</strong>{" "}
                               <span
                                 className={
                                   stock.suggestion.recommendation.includes("Buy")
@@ -382,11 +382,11 @@ const StocksInvest = () => {
                               </span>
                             </p>
                             <p>
-                              <strong className="text-[#8A2BE2]">Reason:</strong>{" "}
+                              <strong className="text-purple-400">Reason:</strong>{" "}
                               {stock.suggestion.reason}
                             </p>
                             <p>
-                              <strong className="text-[#8A2BE2]">Risk:</strong>{" "}
+                              <strong className="text-purple-400">Risk:</strong>{" "}
                               <span
                                 className={
                                   stock.suggestion.risk === "Low"
@@ -401,12 +401,12 @@ const StocksInvest = () => {
                             </p>
                           </div>
                         ) : (
-                          <p className="text-gray-400 text-sm">Loading suggestion...</p>
+                          <p className="text-purple-200 text-sm">Loading suggestion...</p>
                         )}
                       </div>
                       <button
                         onClick={() => handleBuyStock(stock)}
-                        className="px-4 py-2 bg-[#8A2BE2] text-white rounded-lg hover:bg-[#6A0DAD] transition duration-200 text-sm font-medium shadow-md"
+                        className="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-full hover:from-purple-600 hover:to-indigo-700 transition duration-200 text-sm font-medium shadow-md"
                         disabled={!stock.price}
                       >
                         Buy
@@ -417,7 +417,7 @@ const StocksInvest = () => {
                       {chartData[stock.symbol] ? (
                         <Line data={chartData[stock.symbol]} options={chartOptions} />
                       ) : (
-                        <p className="text-gray-400 text-center">Loading chart...</p>
+                        <p className="text-purple-200 text-center">Loading chart...</p>
                       )}
                     </div>
                   </>
@@ -428,21 +428,21 @@ const StocksInvest = () => {
                       {chartData[stock.symbol] ? (
                         <Line data={chartData[stock.symbol]} options={chartOptions} />
                       ) : (
-                        <p className="text-gray-400 text-center">Loading chart...</p>
+                        <p className="text-purple-200 text-center">Loading chart...</p>
                       )}
                     </div>
                     {/* Right: Info */}
                     <div className="w-full md:w-1/2 p-6 flex flex-col justify-between">
                       <div className="space-y-2">
                         <h4 className="text-xl font-semibold text-white">{stock.name}</h4>
-                        <p className="text-gray-300">Symbol: {stock.symbol}</p>
-                        <p className="text-[#8A2BE2] font-medium">
+                        <p className="text-purple-100">Symbol: {stock.symbol}</p>
+                        <p className="text-purple-400 font-medium">
                           Price: ₹{stock.price || "Fetching..."}
                         </p>
                         {stock.suggestion ? (
-                          <div className="text-sm text-gray-200">
+                          <div className="text-sm text-purple-100">
                             <p>
-                              <strong className="text-[#8A2BE2]">Recommendation:</strong>{" "}
+                              <strong className="text-purple-400">Recommendation:</strong>{" "}
                               <span
                                 className={
                                   stock.suggestion.recommendation.includes("Buy")
@@ -456,11 +456,11 @@ const StocksInvest = () => {
                               </span>
                             </p>
                             <p>
-                              <strong className="text-[#8A2BE2]">Reason:</strong>{" "}
+                              <strong className="text-purple-400">Reason:</strong>{" "}
                               {stock.suggestion.reason}
                             </p>
                             <p>
-                              <strong className="text-[#8A2BE2]">Risk:</strong>{" "}
+                              <strong className="text-purple-400">Risk:</strong>{" "}
                               <span
                                 className={
                                   stock.suggestion.risk === "Low"
@@ -475,12 +475,12 @@ const StocksInvest = () => {
                             </p>
                           </div>
                         ) : (
-                          <p className="text-gray-400 text-sm">Loading suggestion...</p>
+                          <p className="text-purple-200 text-sm">Loading suggestion...</p>
                         )}
                       </div>
                       <button
                         onClick={() => handleBuyStock(stock)}
-                        className="px-4 py-2 bg-[#8A2BE2] text-white rounded-lg hover:bg-[#6A0DAD] transition duration-200 text-sm font-medium shadow-md"
+                        className="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-full hover:from-purple-600 hover:to-indigo-700 transition duration-200 text-sm font-medium shadow-md"
                         disabled={!stock.price}
                       >
                         Buy
@@ -492,7 +492,7 @@ const StocksInvest = () => {
             ))}
           </div>
         ) : (
-          <p className="text-gray-400 text-center">
+          <p className="text-purple-200 text-center">
             No stocks found. Try searching for a stock symbol.
           </p>
         )}
@@ -501,20 +501,20 @@ const StocksInvest = () => {
       {/* Buy Stock Modal */}
       {showBuyModal && selectedStock && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center">
-          <div className="bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] p-6 rounded-xl shadow-lg border border-[#8A2BE2] max-w-md w-full">
+          <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-lg border border-purple-500/30 max-w-md w-full">
             <h3 className="text-2xl font-bold text-white mb-4 text-center drop-shadow-sm">
               Buy {selectedStock.name} ({selectedStock.symbol})
             </h3>
-            <p className="text-gray-300 mb-4">Price: ₹{selectedStock.price}</p>
+            <p className="text-purple-100 mb-4">Price: ₹{selectedStock.price}</p>
             <form onSubmit={confirmBuyStock}>
               <div className="mb-4">
-                <label className="block text-white font-medium mb-2">
+                <label className="block text-purple-100 font-medium mb-2">
                   Select Bank Account
                 </label>
                 <select
                   value={selectedBankAccountId}
                   onChange={(e) => setSelectedBankAccountId(e.target.value)}
-                  className="w-full p-3 bg-[#3A3A3A] border border-[#8A2BE2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8A2BE2] text-white"
+                  className="w-full p-3 bg-gray-900 border border-purple-500/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 text-white"
                   required
                 >
                   <option value="">-- Select a bank account --</option>
@@ -528,7 +528,7 @@ const StocksInvest = () => {
               <div className="flex justify-end gap-4">
                 <button
                   type="submit"
-                  className="bg-[#8A2BE2] text-white px-6 py-2 rounded-lg hover:bg-[#6A0DAD] transition duration-200 shadow-md"
+                  className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-2 rounded-full hover:from-purple-600 hover:to-indigo-700 transition duration-200 shadow-md"
                 >
                   Confirm Purchase
                 </button>
@@ -539,7 +539,7 @@ const StocksInvest = () => {
                     setSelectedBankAccountId("");
                     setSelectedStock(null);
                   }}
-                  className="bg-[#4B0082] text-white px-6 py-2 rounded-lg hover:bg-[#2A004B] transition duration-200 shadow-md"
+                  className="bg-gray-700 text-white px-6 py-2 rounded-full hover:bg-gray-600 transition duration-200 shadow-md"
                 >
                   Cancel
                 </button>

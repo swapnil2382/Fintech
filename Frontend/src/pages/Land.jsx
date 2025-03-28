@@ -78,90 +78,151 @@ const Land = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A1A] to-[#4B0082] p-6 flex items-center justify-center text-white">
-      <div className="max-w-lg w-full">
-        <h2 className="text-4xl font-extrabold text-center mb-6 text-white drop-shadow-md">
-          Invest in Land
-        </h2>
-        <p className="text-center mb-8 text-gray-300">
-          Check land investment opportunities across India.
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black p-8">
+      <h2 className="text-5xl font-extrabold text-white mb-6 text-center bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
+        Invest in Land
+      </h2>
+      <p className="text-purple-200 mb-10 text-center text-xl max-w-2xl mx-auto">
+        Explore land investment opportunities across India with real-time pricing insights.
+      </p>
 
-        <form
-          onSubmit={handleLandSubmit}
-          className="bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] p-6 rounded-xl shadow-lg border border-[#8A2BE2]"
-        >
-          <div className="mb-6">
-            <label className="block text-white font-semibold mb-2">
-              City Name (e.g., Mumbai)
-            </label>
-            <input
-              type="text"
-              value={landLocation}
-              onChange={(e) => setLandLocation(e.target.value)}
-              className="w-full p-3 bg-[#3A3A3A] border border-[#8A2BE2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8A2BE2] text-white placeholder-gray-500"
-              placeholder="Enter city name"
-              required
-            />
+      <div className="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto">
+        {/* Sidebar with Investment Tips */}
+        <div className="lg:w-1/3 bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-xl border border-purple-500/30">
+          <h3 className="text-2xl font-semibold text-white mb-4">
+            Land Investment Tips
+          </h3>
+          <ul className="text-purple-100 space-y-4">
+            <li className="flex items-start">
+              <span className="text-purple-400 mr-2">•</span> Research local development plans for future value growth.
+            </li>
+            <li className="flex items-start">
+              <span className="text-purple-400 mr-2">•</span> Verify land titles and legal clearances before buying.
+            </li>
+            <li className="flex items-start">
+              <span className="text-purple-400 mr-2">•</span> Consider proximity to urban centers for higher returns.
+            </li>
+            <li className="flex items-start">
+              <span className="text-purple-400 mr-2">•</span> Diversify by investing in multiple locations.
+            </li>
+          </ul>
+          <div className="mt-6">
+            <h4 className="text-xl font-semibold text-white mb-2">Why Invest in Land?</h4>
+            <p className="text-purple-200 text-sm">
+              Land is a tangible asset with potential for long-term appreciation. Unlike stocks, it’s less volatile and offers opportunities for development or resale.
+            </p>
           </div>
-          <div className="flex justify-between">
-            <button
-              type="submit"
-              className="bg-[#8A2BE2] text-white px-6 py-2 rounded-lg hover:bg-[#6A0DAD] transition duration-300 shadow-md"
-            >
-              Check Rates
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/investments")}
-              className="bg-[#4B0082] text-white px-6 py-2 rounded-lg hover:bg-[#2A004B] transition duration-300 shadow-md"
-            >
-              Back
-            </button>
-          </div>
-        </form>
+        </div>
 
-        {landSuggestion && (
-          <div className="mt-6 bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] p-6 rounded-xl shadow-lg border border-[#8A2BE2]">
-            {typeof landSuggestion === "string" ? (
-              <p className="text-red-400 text-center font-medium">
-                {landSuggestion}
-              </p>
-            ) : (
-              <>
-                <h3 className="text-xl font-semibold text-white mb-2">
-                  {landSuggestion.location} - Investment Details
-                </h3>
-                <div className="text-gray-200 space-y-2">
-                  <p>
-                    <span className="font-semibold">Avg Price:</span> ₹
-                    {landSuggestion.avgPrice.toLocaleString()}/sq.ft
+        {/* Main Content */}
+        <div className="lg:w-2/3">
+          {/* Land Input Form */}
+          <form
+            onSubmit={handleLandSubmit}
+            className="bg-gradient-to-br from-gray-900 to-purple-950 p-8 rounded-2xl shadow-xl border border-purple-500/30 mb-8"
+          >
+            <div className="mb-6">
+              <label className="block text-purple-100 font-medium mb-2">
+                City Name (e.g., Mumbai)
+              </label>
+              <input
+                type="text"
+                value={landLocation}
+                onChange={(e) => setLandLocation(e.target.value)}
+                className="w-full border border-purple-500/50 p-3 rounded-lg bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-400"
+                placeholder="Enter city name"
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-4">
+              <button
+                type="submit"
+                className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-3 rounded-full hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 shadow-lg"
+              >
+                Check Rates
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/investments")}
+                className="bg-gray-700 text-white px-6 py-3 rounded-full hover:bg-gray-600 transition-all duration-200 shadow-lg"
+              >
+                Back to Investments
+              </button>
+            </div>
+          </form>
+
+          {/* Land Suggestion */}
+          {landSuggestion && (
+            <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-xl border border-purple-500/30 mb-8 hover:shadow-2xl transition-all duration-300">
+              {typeof landSuggestion === "string" ? (
+                <p className="text-red-400 text-center font-medium">
+                  {landSuggestion}
+                </p>
+              ) : (
+                <>
+                  <h3 className="text-2xl font-semibold text-white mb-4">
+                    {landSuggestion.location} - Investment Details
+                  </h3>
+                  <div className="text-purple-100 space-y-3">
+                    <p>
+                      <span className="font-semibold text-purple-400">Avg Price:</span> ₹
+                      {landSuggestion.avgPrice.toLocaleString()}/sq.ft
+                    </p>
+                    <p>
+                      <span className="font-semibold text-purple-400">Price Range:</span>{" "}
+                      {landSuggestion.range}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-purple-400">Price per Acre:</span> ₹
+                      {landSuggestion.pricePerAcre.toLocaleString()}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-purple-400">Budget:</span> ₹1,000,000
+                    </p>
+                    <p
+                      className={`font-semibold ${
+                        landSuggestion.canAfford ? "text-green-400" : "text-red-400"
+                      }`}
+                    >
+                      {landSuggestion.canAfford
+                        ? `✅ Affordable! Remaining: ₹${landSuggestion.remainingBudget.toLocaleString()}`
+                        : `❌ Over Budget by ₹${(-landSuggestion.remainingBudget).toLocaleString()}`}
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Additional Content: Top Investment Cities */}
+          <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-xl border border-purple-500/30">
+            <h3 className="text-2xl font-semibold text-white mb-4">
+              Top Investment Cities
+            </h3>
+            <p className="text-purple-200 mb-4">
+              Based on growth potential and current market trends:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                { city: "Mumbai", avg: 50000, growth: "High" },
+                { city: "Bangalore", avg: 25000, growth: "Very High" },
+                { city: "Gurgaon", avg: 28000, growth: "High" },
+                { city: "Hyderabad", avg: 18000, growth: "Moderate" },
+              ].map((item) => (
+                <div
+                  key={item.city}
+                  className="bg-gray-800 p-4 rounded-lg border border-purple-500/20 hover:bg-gray-700 transition-all duration-200"
+                >
+                  <h4 className="text-lg font-semibold text-white">{item.city}</h4>
+                  <p className="text-purple-100 text-sm">
+                    Avg: ₹{item.avg.toLocaleString()}/sq.ft
                   </p>
-                  <p>
-                    <span className="font-semibold">Price Range:</span>{" "}
-                    {landSuggestion.range}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Price per Acre:</span> ₹
-                    {landSuggestion.pricePerAcre.toLocaleString()}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Budget:</span> ₹1,000,000
-                  </p>
-                  <p
-                    className={`font-semibold ${
-                      landSuggestion.canAfford ? "text-green-400" : "text-red-400"
-                    }`}
-                  >
-                    {landSuggestion.canAfford
-                      ? `✅ Affordable! Remaining: ₹${landSuggestion.remainingBudget.toLocaleString()}`
-                      : `❌ Over Budget by ₹${(-landSuggestion.remainingBudget).toLocaleString()}`}
-                  </p>
+                  <p className="text-purple-200 text-sm">Growth: {item.growth}</p>
                 </div>
-              </>
-            )}
+              ))}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

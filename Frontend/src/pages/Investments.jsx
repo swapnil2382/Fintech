@@ -20,14 +20,14 @@ const Investments = () => {
     {
       id: 1,
       name: "Stocks",
-      icon: <FaChartLine className="text-purple-400 text-4xl" />,
+      icon: <FaChartLine className="text-green-400 text-4xl" />,
       description: "Invest in company shares for potential high returns.",
       returns: "8-15% annually (avg)",
     },
     {
       id: 2,
       name: "Land",
-      icon: <FaHome className="text-purple-400 text-4xl" />,
+      icon: <FaHome className="text-red-400 text-4xl" />,
       description: "Buy real estate for long-term value growth.",
       returns: "5-10% annually (avg)",
     },
@@ -41,14 +41,14 @@ const Investments = () => {
     {
       id: 4,
       name: "Mutual Funds",
-      icon: <FaMoneyBillWave className="text-purple-400 text-4xl" />,
+      icon: <FaMoneyBillWave className="text-blue-400 text-4xl" />,
       description: "Diversified investments managed by experts.",
       returns: "6-12% annually (avg)",
     },
     {
       id: 5,
       name: "Fixed Deposits",
-      icon: <FaPiggyBank className="text-purple-400 text-4xl" />,
+      icon: <FaPiggyBank className="text-pink-400 text-4xl" />,
       description: "Low-risk option with guaranteed returns.",
       returns: "4-6% annually (avg)",
     },

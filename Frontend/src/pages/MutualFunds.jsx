@@ -43,58 +43,134 @@ const MutualFunds = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A1A] to-[#4B0082] p-6 text-white flex items-center justify-center">
-      <div className="max-w-md w-full">
-        <h2 className="text-4xl font-extrabold text-center mb-6 text-white drop-shadow-md">
-          Mutual Funds
-        </h2>
-        <p className="text-center mb-8 text-gray-300">
-          Explore mutual fund investment options.
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black p-8">
+      <h2 className="text-5xl font-extrabold text-white mb-6 text-center bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
+        Mutual Funds
+      </h2>
+      <p className="text-purple-200 mb-10 text-center text-xl max-w-2xl mx-auto">
+        Discover mutual fund investment options with real-time NAV insights.
+      </p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] p-6 rounded-xl shadow-lg border border-[#8A2BE2]"
-        >
-          <div className="mb-6">
-            <label className="block text-white font-semibold mb-2">
-              Scheme Code (e.g., 120594)
-            </label>
-            <input
-              type="text"
-              value={schemeCode}
-              onChange={(e) => setSchemeCode(e.target.value)}
-              className="w-full p-3 bg-[#3A3A3A] border border-[#8A2BE2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8A2BE2] text-white placeholder-gray-500"
-              placeholder="Enter scheme code"
-              required
-            />
+      <div className="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto">
+        {/* Sidebar with Investment Tips */}
+        <div className="lg:w-1/3 bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-xl border border-purple-500/30">
+          <h3 className="text-2xl font-semibold text-white mb-4">
+            Mutual Fund Tips
+          </h3>
+          <ul className="text-purple-100 space-y-4">
+            <li className="flex items-start">
+              <span className="text-purple-400 mr-2">•</span> Choose funds based on your risk appetite.
+            </li>
+            <li className="flex items-start">
+              <span className="text-purple-400 mr-2">•</span> Diversify across equity, debt, and hybrid funds.
+            </li>
+            <li className="flex items-start">
+              <span className="text-purple-400 mr-2">•</span> Check past performance and fund manager track record.
+            </li>
+            <li className="flex items-start">
+              <span className="text-purple-400 mr-2">•</span> Consider SIPs for disciplined investing.
+            </li>
+          </ul>
+          <div className="mt-6">
+            <h4 className="text-xl font-semibold text-white mb-2">
+              Why Mutual Funds?
+            </h4>
+            <p className="text-purple-200 text-sm">
+              Mutual funds offer professional management, diversification, and liquidity, making them ideal for both new and seasoned investors.
+            </p>
           </div>
-          <div className="flex justify-end gap-4">
-            <button
-              type="submit"
-              className="bg-[#8A2BE2] text-white px-6 py-2 rounded-lg hover:bg-[#6A0DAD] transition duration-300 shadow-md"
-              disabled={loading}
-            >
-              {loading ? "Loading..." : "Check Fund"}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/investments")}
-              className="bg-[#4B0082] text-white px-6 py-2 rounded-lg hover:bg-[#2A004B] transition duration-300 shadow-md"
-            >
-              Back
-            </button>
-          </div>
-        </form>
+        </div>
 
-        {suggestion && (
-          <div className="mt-6 bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] p-6 rounded-xl shadow-lg border border-[#8A2BE2]">
-            <h3 className="text-xl font-semibold text-white mb-2 text-center">
-              Investment Suggestion
+        {/* Main Content */}
+        <div className="lg:w-2/3">
+          {/* Fund Input Form */}
+          <form
+            onSubmit={handleSubmit}
+            className="bg-gradient-to-br from-gray-900 to-purple-950 p-8 rounded-2xl shadow-xl border border-purple-500/30 mb-8"
+          >
+            <div className="mb-6">
+              <label className="block text-purple-100 font-medium mb-2">
+                Scheme Code (e.g., 120594)
+              </label>
+              <input
+                type="text"
+                value={schemeCode}
+                onChange={(e) => setSchemeCode(e.target.value)}
+                className="w-full border border-purple-500/50 p-3 rounded-lg bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-400"
+                placeholder="Enter scheme code"
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-4">
+              <button
+                type="submit"
+                className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-3 rounded-full hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 shadow-lg"
+                disabled={loading}
+              >
+                {loading ? "Loading..." : "Check Fund"}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/investments")}
+                className="bg-gray-700 text-white px-6 py-3 rounded-full hover:bg-gray-600 transition-all duration-200 shadow-lg"
+              >
+                Back to Investments
+              </button>
+            </div>
+          </form>
+
+          {/* Fund Suggestion */}
+          {suggestion && (
+            <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-xl border border-purple-500/30 mb-8 hover:shadow-2xl transition-all duration-300">
+              <h3 className="text-2xl font-semibold text-white mb-4 text-center">
+                Investment Suggestion
+              </h3>
+              <p className="text-purple-100 whitespace-pre-line">
+                {suggestion.includes("Invalid") ? (
+                  <span className="text-red-400">{suggestion}</span>
+                ) : (
+                  suggestion
+                )}
+              </p>
+            </div>
+          )}
+
+          {/* Additional Content: Popular Mutual Funds */}
+          <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-xl border border-purple-500/30">
+            <h3 className="text-2xl font-semibold text-white mb-4">
+              Popular Mutual Funds
             </h3>
-            <p className="text-gray-200 whitespace-pre-line">{suggestion}</p>
+            <p className="text-purple-200 mb-4">
+              Explore some top-performing mutual funds in India:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                { name: "SBI Bluechip Fund", code: "103504", category: "Large Cap" },
+                { name: "HDFC Mid-Cap Opportunities", code: "118933", category: "Mid Cap" },
+                { name: "Mirae Asset Large Cap", code: "118825", category: "Large Cap" },
+                { name: "Axis Long Term Equity", code: "112277", category: "ELSS" },
+              ].map((fund) => (
+                <div
+                  key={fund.code}
+                  className="bg-gray-800 p-4 rounded-lg border border-purple-500/20 hover:bg-gray-700 transition-all duration-200"
+                >
+                  <h4 className="text-lg font-semibold text-white">{fund.name}</h4>
+                  <p className="text-purple-100 text-sm">Code: {fund.code}</p>
+                  <p className="text-purple-200 text-sm">Category: {fund.category}</p>
+                  <button
+                    onClick={() => {
+                      setSchemeCode(fund.code);
+                      fetchFundData(fund.code);
+                    }}
+                    className="mt-2 text-sm text-purple-400 hover:text-purple-300 underline"
+                  >
+                    Check Details
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -170,7 +170,7 @@ const BankAccounts = () => {
             <span className="text-xl">+</span> Add Account
           </button>
           <Link
-            to="/expenditure"
+            to="/home/expenditure"
             className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-500 text-white px-5 py-2 rounded-full hover:from-purple-700 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
           >
             Track Expenditure
