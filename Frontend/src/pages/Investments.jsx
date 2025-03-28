@@ -84,13 +84,13 @@ const Investments = () => {
         alert("Unable to fetch real-time gold price in INR.");
       }
     } else if (option.name === "Land") {
-      navigate("/land");
+      navigate("/home/land");
     } else if (option.name === "Mutual Funds") {
-      navigate("/mutual-funds");
+      navigate("/home/mutual-funds");
     } else if (option.name === "Fixed Deposits") {
-      navigate("/fixed-deposits");
+      navigate("/home/fixed-deposits");
     } else if (option.name === "Stocks") {
-      navigate("/stocksinvest"); // Redirect to /stocksinvest page
+      navigate("/home/stocksinvest"); // Redirect to /stocksinvest page
     } else {
       console.log(`Mock investment action: Investing in ${option.name}`);
       alert(`You’ve chosen to explore ${option.name}! (Mock action)`);

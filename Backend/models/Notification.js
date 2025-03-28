@@ -18,6 +18,13 @@ const notificationSchema = new mongoose.Schema({
   category: { type: String }, // Add category field for budget exceed notifications
   date: { type: Date, default: Date.now },
   read: { type: Boolean, default: false },
+  debt: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Debt",
+    required: function () {
+      return this.type === "debt-reminder";
+    },
+  },
 });
 
 module.exports = mongoose.model("Notification", notificationSchema);

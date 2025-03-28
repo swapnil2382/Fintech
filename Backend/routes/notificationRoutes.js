@@ -1,5 +1,6 @@
 const express = require("express");
 const Notification = require("../models/Notification");
+const Debt = require("../models/Debt"); // Add this line
 const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -10,9 +11,57 @@ console.log("Notification Routes: Router created", router); // Debug log
 router.get("/", authMiddleware, async (req, res) => {
   console.log("Notification GET route handler called"); // Debug log
   try {
-    const notifications = await Notification.find({ user: req.user.id })
+    const userId = req.user.id;
+
+    // Fetch existing notifications
+    let notifications = await Notification.find({ user: userId })
       .populate("transaction")
+      .populate("debt")
       .sort({ date: -1 });
+
+    // Generate debt payment reminders if they don't already exist
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7); // Look for payments due in the next 7 days
+
+    const debts = await Debt.find({ user: userId });
+
+    for (const debt of debts) {
+      let currentDate = new Date(debt.startDate);
+      while (currentDate <= new Date(debt.dueDate)) {
+        if (currentDate >= today && currentDate <= nextWeek) {
+          // Check if a notification for this payment already exists
+          const existingNotification = notifications.find(
+            (notif) =>
+              notif.type === "debt-reminder" &&
+              notif.debt.toString() === debt._id.toString() &&
+              new Date(notif.date).toISOString().split("T")[0] ===
+                currentDate.toISOString().split("T")[0]
+          );
+
+          if (!existingNotification) {
+            const notification = new Notification({
+              user: userId,
+              type: "debt-reminder",
+              message: `Upcoming payment of ${debt.monthlyPayment} ${
+                debt.currency
+              } for your debt with ${debt.lender} is due on ${
+                currentDate.toISOString().split("T")[0]
+              }.`,
+              debt: debt._id,
+              date: currentDate,
+            });
+            await notification.save();
+            notifications.push(notification);
+          }
+        }
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+    }
+
+    // Sort notifications by date
+    notifications.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     res.json(notifications);
   } catch (error) {
     res
