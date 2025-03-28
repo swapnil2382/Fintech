@@ -20,35 +20,35 @@ const Investments = () => {
     {
       id: 1,
       name: "Stocks",
-      icon: <FaChartLine className="text-blue-500 text-3xl" />,
+      icon: <FaChartLine className="text-green-400 text-4xl" />,
       description: "Invest in company shares for potential high returns.",
       returns: "8-15% annually (avg)",
     },
     {
       id: 2,
       name: "Land",
-      icon: <FaHome className="text-blue-500 text-3xl" />,
+      icon: <FaHome className="text-red-400 text-4xl" />,
       description: "Buy real estate for long-term value growth.",
       returns: "5-10% annually (avg)",
     },
     {
       id: 3,
       name: "Gold",
-      icon: <FaGem className="text-yellow-500 text-3xl" />,
+      icon: <FaGem className="text-yellow-400 text-4xl" />,
       description: "A safe haven asset with steady value.",
       returns: "3-7% annually (avg)",
     },
     {
       id: 4,
       name: "Mutual Funds",
-      icon: <FaMoneyBillWave className="text-blue-500 text-3xl" />,
+      icon: <FaMoneyBillWave className="text-blue-400 text-4xl" />,
       description: "Diversified investments managed by experts.",
       returns: "6-12% annually (avg)",
     },
     {
       id: 5,
       name: "Fixed Deposits",
-      icon: <FaPiggyBank className="text-blue-500 text-3xl" />,
+      icon: <FaPiggyBank className="text-pink-400 text-4xl" />,
       description: "Low-risk option with guaranteed returns.",
       returns: "4-6% annually (avg)",
     },
@@ -90,7 +90,7 @@ const Investments = () => {
     } else if (option.name === "Fixed Deposits") {
       navigate("/home/fixed-deposits");
     } else if (option.name === "Stocks") {
-      navigate("/home/stocksinvest"); // Redirect to /stocksinvest page
+      navigate("/home/stocksinvest");
     } else {
       console.log(`Mock investment action: Investing in ${option.name}`);
       alert(`You’ve chosen to explore ${option.name}! (Mock action)`);
@@ -119,38 +119,38 @@ const Investments = () => {
   };
 
   return (
-    <div className="p-6 bg-black min-h-screen">
-      <h2 className="text-3xl font-bold mb-6 text-white text-center">
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black p-8">
+      <h2 className="text-4xl font-extrabold text-white mb-4 text-center bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
         Explore Investment Options
       </h2>
-      <p className="text-gray-400 mb-6 text-center">
-        Choose an investment that suits your financial goals.
+      <p className="text-purple-300 mb-8 text-center text-lg">
+        Choose an investment that aligns with your financial dreams.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {investmentOptions.map((option) => (
           <div
             key={option.id}
-            className="bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition duration-200 flex flex-col items-center"
+            className="bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 flex flex-col items-center border border-purple-700"
           >
-            <div className="mb-4">{option.icon}</div>
-            <h3 className="text-xl font-semibold text-white mb-2">
+            <div className="mb-6">{option.icon}</div>
+            <h3 className="text-2xl font-semibold text-white mb-3">
               {option.name}
             </h3>
-            <p className="text-gray-400 text-center mb-4">
+            <p className="text-purple-200 text-center mb-4">
               {option.description}
             </p>
-            <p className="text-gray-300 font-medium mb-4">
+            <p className="text-purple-300 font-medium mb-6">
               Expected Returns: {option.returns}
             </p>
             <button
               onClick={() => handleInvestClick(option)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+              className="bg-gradient-to-r from-purple-500 to-purple-700 text-white px-6 py-2 rounded-full hover:from-purple-600 hover:to-purple-800 transition-all duration-200 shadow-md"
             >
               Invest Now
             </button>
             {option.name === "Gold" && goldSuggestion && (
-              <p className="text-sm text-gray-400 mt-2 text-center whitespace-pre-line">
+              <p className="text-sm text-purple-300 mt-4 text-center whitespace-pre-line">
                 {goldSuggestion}
               </p>
             )}
@@ -159,19 +159,19 @@ const Investments = () => {
       </div>
 
       {showGoldModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-md w-full border border-gray-700">
-            <h3 className="text-2xl font-bold text-white mb-4 text-center">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-8 rounded-xl shadow-2xl max-w-md w-full border border-purple-600 transform transition-all duration-300 scale-100">
+            <h3 className="text-3xl font-bold text-white mb-6 text-center bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
               Invest in Gold
             </h3>
-            <p className="text-gray-400 mb-4 text-center">
+            <p className="text-purple-300 mb-6 text-center">
               Current Price: ₹
               {goldPricePerGram ? goldPricePerGram.toFixed(2) : "Loading..."}
               /gram
             </p>
             <form onSubmit={handleGoldSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-300 font-medium mb-2">
+              <div className="mb-6">
+                <label className="block text-purple-200 font-medium mb-2">
                   Amount to Buy (grams)
                 </label>
                 <input
@@ -180,16 +180,14 @@ const Investments = () => {
                   min="0.01"
                   value={goldAmount}
                   onChange={(e) => setGoldAmount(e.target.value)}
-                  className="w-full border border-gray-600 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                  className="w-full border border-purple-600 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-800 text-white placeholder-gray-500"
                   placeholder="e.g., 10"
                   required
                 />
               </div>
               {goldPricePerGram && goldAmount && (
-                <div className="mb-4 text-gray-300">
-                  <p>
-                    Total Cost: ₹{(goldAmount * goldPricePerGram).toFixed(2)}
-                  </p>
+                <div className="mb-6 text-purple-200">
+                  <p>Total Cost: ₹{(goldAmount * goldPricePerGram).toFixed(2)}</p>
                   <p>Mock Budget: ₹1,00,000</p>
                   <p>
                     Remaining: ₹
@@ -200,14 +198,14 @@ const Investments = () => {
               <div className="flex justify-end gap-4">
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+                  className="bg-gradient-to-r from-purple-500 to-purple-700 text-white px-6 py-2 rounded-full hover:from-purple-600 hover:to-purple-800 transition-all duration-200"
                 >
                   Confirm Investment
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowGoldModal(false)}
-                  className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
+                  className="bg-gray-700 text-white px-6 py-2 rounded-full hover:bg-gray-800 transition-all duration-200"
                 >
                   Cancel
                 </button>
