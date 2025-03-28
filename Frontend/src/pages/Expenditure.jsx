@@ -91,28 +91,52 @@ const Expenditure = () => {
     datasets: [
       {
         data: Object.values(expenses),
-        backgroundColor: ["#3B82F6", "#1E40AF", "#60A5FA", "#2563EB", "#93C5FD"],
-        hoverBackgroundColor: ["#2563EB", "#1E3A8A", "#60A5FA", "#1D4ED8", "#BFDBFE"],
+        backgroundColor: [
+          "rgba(139, 92, 246, 0.6)", // Purple shades
+          "rgba(167, 139, 250, 0.6)",
+          "rgba(99, 102, 241, 0.6)",
+          "rgba(124, 58, 237, 0.6)",
+          "rgba(192, 132, 252, 0.6)",
+        ],
+        hoverBackgroundColor: [
+          "rgba(139, 92, 246, 0.8)",
+          "rgba(167, 139, 250, 0.8)",
+          "rgba(99, 102, 241, 0.8)",
+          "rgba(124, 58, 237, 0.8)",
+          "rgba(192, 132, 252, 0.8)",
+        ],
       },
     ],
   };
 
-  return (
-    <div className="p-6 bg-black min-h-screen text-white">
-      <h2 className="text-3xl font-bold mb-6 text-blue-400">Track Your Expenditure</h2>
-      <p className="text-gray-300 mb-6">Current Total Balance: <span className="font-semibold text-blue-300">₹{totalBalance.toFixed(2)}</span></p>
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: "top", labels: { color: "#e9d5ff" } },
+      tooltip: { callbacks: { label: (context) => `₹${context.parsed.toLocaleString()}` } },
+    },
+  };
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black p-8">
+      <h2 className="text-5xl font-extrabold text-white mb-6 text-center bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
+        Track Your Expenditure
+      </h2>
+      <p className="text-purple-200 mb-8 text-center text-xl">
+        Current Total Balance: <span className="font-semibold text-purple-100">₹{totalBalance.toFixed(2)}</span>
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
         {/* Expense Input Section */}
-        <div className="bg-gray-900 p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl font-semibold mb-4 text-blue-300">Enter Your Expenses</h3>
+        <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-xl border border-purple-500/30 hover:shadow-2xl transition-all duration-300">
+          <h3 className="text-2xl font-semibold text-purple-400 mb-4">Enter Your Expenses</h3>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-gray-400 font-medium mb-2">Select Bank Account</label>
+              <label className="block text-purple-100 font-medium mb-2">Select Bank Account</label>
               <select
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
-                className="w-full border border-gray-700 p-2 rounded-lg bg-black text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-purple-500/50 p-3 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
               >
                 {accounts.length === 0 ? (
                   <option value="">No accounts available</option>
@@ -128,42 +152,50 @@ const Expenditure = () => {
 
             {Object.keys(expenses).map((category) => (
               <div key={category} className="mb-4">
-                <label className="block text-gray-400 font-medium mb-2">{category} (₹)</label>
+                <label className="block text-purple-100 font-medium mb-2">{category} (₹)</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
                   value={expenses[category] || ""}
                   onChange={(e) => handleInputChange(category, e.target.value)}
-                  className="w-full border border-gray-700 p-2 rounded-lg bg-black text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-purple-500/50 p-3 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-400"
                   placeholder={`Enter ${category} expense`}
                 />
               </div>
             ))}
 
-            <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
-              Submit Expenses
-            </button>
-            <Link to="/transactions" className="ml-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
-              View Transactions
-            </Link>
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-2 rounded-full hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 shadow-md"
+              >
+                Submit Expenses
+              </button>
+              <Link
+                to="/transactions"
+                className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-2 rounded-full hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 shadow-md"
+              >
+                View Transactions
+              </Link>
+            </div>
           </form>
         </div>
 
         {/* Chart Section */}
-        <div className="bg-gray-900 p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl font-semibold mb-4 text-blue-300">Spending Breakdown</h3>
+        <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-xl border border-purple-500/30 hover:shadow-2xl transition-all duration-300">
+          <h3 className="text-2xl font-semibold text-purple-400 mb-4">Spending Breakdown</h3>
           {Object.values(expenses).some((val) => val > 0) ? (
             <div className="w-full h-64">
-              <Pie data={chartData} options={{ maintainAspectRatio: false }} />
+              <Pie data={chartData} options={chartOptions} />
             </div>
           ) : (
-            <p className="text-gray-400">Enter expenses to see the chart.</p>
+            <p className="text-purple-200">Enter expenses to see the chart.</p>
           )}
           {tips && (
             <div className="mt-6">
-              <h4 className="text-lg font-medium text-blue-300">Money-Saving Tip</h4>
-              <p className="text-gray-300">{tips}</p>
+              <h4 className="text-lg font-medium text-purple-300">Money-Saving Tip</h4>
+              <p className="text-purple-100">{tips}</p>
             </div>
           )}
         </div>

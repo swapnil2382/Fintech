@@ -136,81 +136,88 @@ const BankAccounts = () => {
   const getIcon = (type) => {
     switch (type) {
       case "Bank Account":
-        return <FaBuilding className="text-blue-500 text-2xl" />;
+        return <FaBuilding className="text-purple-400 text-3xl transition-transform duration-200 hover:scale-110" />;
       case "Credit Card":
-        return <FaCreditCard className="text-purple-500 text-2xl" />;
+        return <FaCreditCard className="text-purple-500 text-3xl transition-transform duration-200 hover:scale-110" />;
       case "Investment":
-        return <FaBuilding className="text-green-500 text-2xl" />;
+        return <FaBuilding className="text-indigo-400 text-3xl transition-transform duration-200 hover:scale-110" />;
       case "Digital Wallet":
-        return <FaWallet className="text-blue-400 text-2xl" />;
+        return <FaWallet className="text-purple-300 text-3xl transition-transform duration-200 hover:scale-110" />;
       default:
-        return <FaBuilding className="text-gray-500 text-2xl" />;
+        return <FaBuilding className="text-gray-500 text-3xl transition-transform duration-200 hover:scale-110" />;
     }
   };
 
   return (
-    <div className="p-6 bg-black min-h-screen text-white">
-      <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black p-8">
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-3xl font-bold">Connected Accounts</h2>
-          <p className="text-gray-400">
-            Manage your linked financial accounts and connections
+          <h2 className="text-5xl font-extrabold text-white bg-gradient-to-r from-purple-400 via-indigo-500 to-purple-600 bg-clip-text text-transparent drop-shadow-lg animate-pulse">
+            Connected Accounts
+          </h2>
+          <p className="text-purple-200 mt-2 text-lg max-w-md">
+            Seamlessly manage your linked financial accounts with ease.
           </p>
         </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-200">
-            <span className="text-lg">⟳</span> Sync All
+        <div className="flex gap-4">
+          <button className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-500 text-white px-5 py-2 rounded-full hover:from-purple-700 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-purple-500/50">
+            <span className="text-xl">⟳</span> Sync All
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-200"
+            className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-500 text-white px-5 py-2 rounded-full hover:from-purple-700 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
           >
-            <span className="text-lg">+</span> Add Account
+            <span className="text-xl">+</span> Add Account
           </button>
           <Link
             to="/expenditure"
-            className="flex items-center gap-2 bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+            className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-500 text-white px-5 py-2 rounded-full hover:from-purple-700 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
           >
             Track Expenditure
           </Link>
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {accounts.map((account) => (
           <div
             key={account._id}
-            className="flex items-center justify-between bg-blue-950 p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200"
+            className="relative flex items-center justify-between bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-xl border border-purple-500/40 hover:shadow-2xl hover:scale-105 transition-all duration-300"
           >
-            <div className="flex items-center gap-4">
+            <div className="absolute inset-0 bg-purple-500/10 blur-xl rounded-2xl -z-10"></div>
+            <div className="flex items-center gap-5">
               {getIcon(account.type)}
               <div>
-                <h3 className="text-lg font-semibold">{account.name}</h3>
-                <p className="text-sm text-gray-400">{account.type}</p>
-                <p className="text-sm text-gray-500">
+                <h3 className="text-xl font-bold text-white bg-gradient-to-r from-purple-300 to-indigo-400 bg-clip-text text-transparent">
+                  {account.name}
+                </h3>
+                <p className="text-sm text-purple-200">{account.type}</p>
+                <p className="text-sm text-purple-300">
                   Last synced: {account.lastSynced}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <p className="text-lg font-medium">₹{account.balance.toFixed(2)}</p>
+            <div className="flex items-center gap-4">
+              <p className="text-lg font-medium text-purple-100 bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text text-transparent">
+                ₹{account.balance.toFixed(2)}
+              </p>
               <span
                 className={`text-sm ${account.status === "Connected"
-                    ? "text-green-500"
-                    : "text-red-500"
+                    ? "text-green-400"
+                    : "text-red-400"
                   } flex items-center gap-1`}
               >
                 {account.status === "Connected" ? "✔" : "✖"} {account.status}
               </span>
               <button
                 onClick={() => openAddMoneyModal(account._id)}
-                className="flex items-center gap-2 bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition duration-200"
+                className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-green-500/50"
               >
                 <FaPlus /> Add Money
               </button>
               <button
                 onClick={() => handleDeleteAccount(account._id)}
-                className="flex items-center gap-2 bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-200"
+                className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-red-500/50"
               >
                 <FaTrash /> Delete
               </button>
@@ -221,14 +228,14 @@ const BankAccounts = () => {
 
       {/* Add Account Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full border border-gray-200">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-8 rounded-2xl shadow-2xl max-w-md w-full border border-purple-500/40 transform transition-all duration-300 scale-105">
+            <h3 className="text-3xl font-bold text-white mb-6 text-center bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text text-transparent">
               Add New Account
             </h3>
             <form onSubmit={handleAddAccount}>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">
+              <div className="mb-5">
+                <label className="block text-purple-100 font-medium mb-2">
                   Bank Name
                 </label>
                 <input
@@ -237,13 +244,13 @@ const BankAccounts = () => {
                   onChange={(e) =>
                     setNewAccount({ ...newAccount, name: e.target.value })
                   }
-                  className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-purple-500/50 p-3 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-400 transition-all duration-200 hover:border-purple-400"
                   placeholder="e.g., HDFC Bank"
                   required
                 />
               </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">
+              <div className="mb-5">
+                <label className="block text-purple-100 font-medium mb-2">
                   Account Type
                 </label>
                 <select
@@ -251,7 +258,7 @@ const BankAccounts = () => {
                   onChange={(e) =>
                     setNewAccount({ ...newAccount, type: e.target.value })
                   }
-                  className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-purple-500/50 p-3 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200 hover:border-purple-400"
                 >
                   <option value="Bank Account">Bank Account</option>
                   <option value="Credit Card">Credit Card</option>
@@ -259,8 +266,8 @@ const BankAccounts = () => {
                   <option value="Digital Wallet">Digital Wallet</option>
                 </select>
               </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">
+              <div className="mb-5">
+                <label className="block text-purple-100 font-medium mb-2">
                   Current Balance (₹)
                 </label>
                 <input
@@ -271,13 +278,13 @@ const BankAccounts = () => {
                   onChange={(e) =>
                     setNewAccount({ ...newAccount, balance: e.target.value })
                   }
-                  className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-purple-500/50 p-3 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-400 transition-all duration-200 hover:border-purple-400"
                   placeholder="e.g., 10000"
                   required
                 />
               </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">
+              <div className="mb-5">
+                <label className="block text-purple-100 font-medium mb-2">
                   Monthly Income (₹)
                 </label>
                 <input
@@ -288,21 +295,21 @@ const BankAccounts = () => {
                   onChange={(e) =>
                     setNewAccount({ ...newAccount, income: e.target.value })
                   }
-                  className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-purple-500/50 p-3 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-400 transition-all duration-200 hover:border-purple-400"
                   placeholder="e.g., 50000"
                 />
               </div>
               <div className="flex justify-end gap-4">
                 <button
                   type="submit"
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-200"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-500 text-white px-6 py-2 rounded-full hover:from-purple-700 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
                 >
                   Add Account
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
+                  className="bg-gray-700 text-white px-6 py-2 rounded-full hover:bg-gray-600 transition-all duration-300 shadow-md"
                 >
                   Cancel
                 </button>
@@ -314,51 +321,50 @@ const BankAccounts = () => {
 
       {/* Add Money Modal */}
       {showAddMoneyModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center">
-    <div className="p-6 rounded-lg shadow-lg max-w-md w-full border border-blue-600 bg-gray-900">
-      <h3 className="text-2xl font-bold text-white mb-4 text-center">
-        Add Money to Account
-      </h3>
-      <form onSubmit={handleAddMoney} className="text-white">
-        <div className="mb-4">
-          <label className="block text-white font-medium mb-2">
-            Amount to Add (₹)
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            value={addMoneyAmount}
-            onChange={(e) => setAddMoneyAmount(e.target.value)}
-            className="w-full border border-blue-500 p-2 rounded-lg bg-black text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g., 5000"
-            required
-          />
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-8 rounded-2xl shadow-2xl max-w-md w-full border border-purple-500/40 transform transition-all duration-300 scale-105">
+            <h3 className="text-3xl font-bold text-white mb-6 text-center bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text text-transparent">
+              Add Money to Account
+            </h3>
+            <form onSubmit={handleAddMoney}>
+              <div className="mb-5">
+                <label className="block text-purple-100 font-medium mb-2">
+                  Amount to Add (₹)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={addMoneyAmount}
+                  onChange={(e) => setAddMoneyAmount(e.target.value)}
+                  className="w-full border border-purple-500/50 p-3 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-400 transition-all duration-200 hover:border-purple-400"
+                  placeholder="e.g., 5000"
+                  required
+                />
+              </div>
+              <div className="flex justify-end gap-4">
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-500 text-white px-6 py-2 rounded-full hover:from-purple-700 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
+                >
+                  Add Money
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddMoneyModal(false);
+                    setAddMoneyAmount("");
+                    setSelectedAccountId(null);
+                  }}
+                  className="bg-gray-700 text-white px-6 py-2 rounded-full hover:bg-gray-600 transition-all duration-300 shadow-md"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div className="flex justify-end gap-4">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-          >
-            Add Money
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setShowAddMoneyModal(false);
-              setAddMoneyAmount("");
-              setSelectedAccountId(null);
-            }}
-            className="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition duration-200"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
 };

@@ -20,7 +20,7 @@ const TaxFiling = () => {
   const [taxForm, setTaxForm] = useState(null);
   const [bankAccounts, setBankAccounts] = useState([]);
   const [selectedBankAccountId, setSelectedBankAccountId] = useState("");
-  const [searchTerm, setSearchTerm] = useState(""); // New state for search bar
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -110,16 +110,16 @@ const TaxFiling = () => {
               taxData.taxLiability,
             ],
             backgroundColor: [
-              "rgba(59, 130, 246, 0.6)", // Blue shades
-              "rgba(147, 197, 253, 0.6)",
-              "rgba(30, 64, 175, 0.6)",
-              "rgba(96, 165, 250, 0.6)",
+              "rgba(139, 92, 246, 0.6)", // Purple shades
+              "rgba(167, 139, 250, 0.6)",
+              "rgba(99, 102, 241, 0.6)",
+              "rgba(124, 58, 237, 0.6)",
             ],
             borderColor: [
-              "rgba(59, 130, 246, 1)",
-              "rgba(147, 197, 253, 1)",
-              "rgba(30, 64, 175, 1)",
-              "rgba(96, 165, 250, 1)",
+              "rgba(139, 92, 246, 1)",
+              "rgba(167, 139, 250, 1)",
+              "rgba(99, 102, 241, 1)",
+              "rgba(124, 58, 237, 1)",
             ],
             borderWidth: 1,
           },
@@ -130,33 +130,35 @@ const TaxFiling = () => {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: { position: "top", labels: { color: "#fff" } },
-      title: { display: true, text: "Tax Breakdown (FY 2024-25)", color: "#fff" },
+      legend: { position: "top", labels: { color: "#e9d5ff" } },
+      title: { display: true, text: "Tax Breakdown (FY 2024-25)", color: "#e9d5ff" },
       tooltip: { callbacks: { label: (context) => `₹${context.parsed.toLocaleString()}` } },
     },
     scales: {
       y: {
         beginAtZero: true,
-        ticks: { color: "#fff", callback: (value) => `₹${value.toLocaleString()}` },
+        ticks: { color: "#e9d5ff", callback: (value) => `₹${value.toLocaleString()}` },
       },
-      x: { ticks: { color: "#fff" } },
+      x: { ticks: { color: "#e9d5ff" } },
     },
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans p-6">
-    
-
-      {/* Header and Bank Account Selector */}
-      <h2 className="text-4xl font-extrabold text-blue-500 mb-8 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black p-8">
+      <h2 className="text-5xl font-extrabold text-white mb-6 text-center bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
         Automated Tax Calculation & Filing
       </h2>
+      <p className="text-purple-200 mb-10 text-center text-xl max-w-2xl mx-auto">
+        Simplify your tax process with automated calculations and filings.
+      </p>
+
+      {/* Bank Account Selector */}
       <div className="max-w-4xl mx-auto mb-8">
-        <label className="block text-gray-300 font-medium mb-2">Select Bank Account</label>
+        <label className="block text-purple-100 font-medium mb-2">Select Bank Account</label>
         <select
           value={selectedBankAccountId}
           onChange={(e) => setSelectedBankAccountId(e.target.value)}
-          className="w-full bg-gray-800 border border-gray-700 text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full bg-gray-800 border border-purple-500/50 text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
         >
           <option value="" className="text-gray-400">-- Select a bank account --</option>
           {bankAccounts.map((account) => (
@@ -167,16 +169,16 @@ const TaxFiling = () => {
         </select>
       </div>
 
-      {loading && <p className="text-center text-gray-400 text-lg">Loading...</p>}
-      {error && <p className="text-center text-red-500 text-lg font-medium">{error}</p>}
+      {loading && <p className="text-center text-purple-200 text-lg">Loading...</p>}
+      {error && <p className="text-center text-red-400 text-lg font-medium">{error}</p>}
 
       {/* Two-Column Layout */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Tax Estimation */}
         {taxData && (
-          <div className="bg-gray-900 p-6 rounded-lg shadow-lg">
-            <h3 className="text-2xl font-bold text-blue-500 mb-4">Tax Estimation (FY 2024-25)</h3>
-            <div className="space-y-3 text-gray-300">
+          <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-xl border border-purple-500/30 hover:shadow-2xl transition-all duration-300">
+            <h3 className="text-2xl font-bold text-purple-400 mb-4">Tax Estimation (FY 2024-25)</h3>
+            <div className="space-y-3 text-purple-100">
               {Object.entries({
                 "Total Income": taxData.totalIncome,
                 "Income from Capital Gains": taxData.capitalGains,
@@ -195,7 +197,7 @@ const TaxFiling = () => {
 
         {/* Tax Breakdown Chart */}
         {taxData && (
-          <div className="bg-gray-900 p-6 rounded-lg shadow-lg">
+          <div className="bg-gradient-to-br from-gray-900 to-purple-950 p-6 rounded-2xl shadow-xl border border-purple-500/30 hover:shadow-2xl transition-all duration-300">
             <div className="h-80">
               <Bar data={chartData} options={chartOptions} />
             </div>
@@ -207,7 +209,7 @@ const TaxFiling = () => {
       <div className="max-w-7xl mx-auto text-center mt-8">
         <button
           onClick={generateTaxForm}
-          className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-200 disabled:bg-gray-600"
+          className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-full shadow-md hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 disabled:bg-gray-600 disabled:shadow-none"
           disabled={!selectedBankAccountId}
         >
           Generate & Download Tax Form

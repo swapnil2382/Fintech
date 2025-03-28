@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Same land prices object as above
 const landPrices = {
   Mumbai: { avg: 50000, range: "45,000-55,000" },
   Delhi: { avg: 35000, range: "30,000-40,000" },
@@ -58,8 +57,8 @@ const Land = () => {
       landLocation.trim().charAt(0).toUpperCase() +
       landLocation.trim().slice(1).toLowerCase();
     const landData = landPrices[location];
-    const sqFtPerAcre = 43560; // 1 acre = 43,560 sq ft
-    const budget = 1000000; // ₹10 lakh
+    const sqFtPerAcre = 43560;
+    const budget = 1000000;
 
     if (landData) {
       const pricePerAcre = landData.avg * sqFtPerAcre;
@@ -79,25 +78,28 @@ const Land = () => {
   };
 
   return (
-    <div className="p-48 bg-black min-h-screen flex flex-col items-center text-white ">
-      <div className="max-w-lg w-full  bg-blue-950 p-6 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold text-white mb-4 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-[#1A1A1A] to-[#4B0082] p-6 flex items-center justify-center text-white">
+      <div className="max-w-lg w-full">
+        <h2 className="text-4xl font-extrabold text-center mb-6 text-white drop-shadow-md">
           Invest in Land
         </h2>
-        <p className="text-white mb-6 text-center">
-          Enter a city in India to check land investment opportunities.
+        <p className="text-center mb-8 text-gray-300">
+          Check land investment opportunities across India.
         </p>
 
-        <form onSubmit={handleLandSubmit} className="space-y-4">
-          <div>
-            <label className="block text-white font-medium mb-2">
-              City Name (e.g., Mumbai, Hyderabad)
+        <form
+          onSubmit={handleLandSubmit}
+          className="bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] p-6 rounded-xl shadow-lg border border-[#8A2BE2]"
+        >
+          <div className="mb-6">
+            <label className="block text-white font-semibold mb-2">
+              City Name (e.g., Mumbai)
             </label>
             <input
               type="text"
               value={landLocation}
               onChange={(e) => setLandLocation(e.target.value)}
-              className="w-full border border-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 bg-[#3A3A3A] border border-[#8A2BE2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8A2BE2] text-white placeholder-gray-500"
               placeholder="Enter city name"
               required
             />
@@ -105,63 +107,62 @@ const Land = () => {
           <div className="flex justify-between">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-14 py-2  ms-28 rounded-lg hover:bg-blue-700 transition duration-200 "
+              className="bg-[#8A2BE2] text-white px-6 py-2 rounded-lg hover:bg-[#6A0DAD] transition duration-300 shadow-md"
             >
               Check Rates
             </button>
             <button
               type="button"
               onClick={() => navigate("/investments")}
-              className="bg-gray-600 text-white px-12 py-2 rounded-lg hover:bg-gray-700 transition duration-200 "
+              className="bg-[#4B0082] text-white px-6 py-2 rounded-lg hover:bg-[#2A004B] transition duration-300 shadow-md"
             >
               Back
             </button>
           </div>
         </form>
-      </div>
 
-      {landSuggestion && (
-        <div className="mt-6 max-w-lg w-full bg-black p-6 rounded-lg shadow-lg transition-opacity duration-300 animate-fadeIn">
-          {typeof landSuggestion === "string" ? (
-            <p className="text-red-600 text-center font-medium">
-              {landSuggestion}
-            </p>
-          ) : (
-            <>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                Investment Details - {landSuggestion.location}
-              </h3>
-              <div className="text-white space-y-2">
-                <p>
-                  <span className="font-semibold">Avg Price:</span> ₹
-                  {landSuggestion.avgPrice.toLocaleString()}/sq.ft
-                </p>
-                <p>
-                  <span className="font-semibold">Price Range:</span>{" "}
-                  {landSuggestion.range}
-                </p>
-                <p>
-                  <span className="font-semibold">Price per Acre:</span> ₹
-                  {landSuggestion.pricePerAcre.toLocaleString()}
-                </p>
-                <p>
-                  <span className="font-semibold">Budget:</span> ₹ 1,000,000
-                  (₹10 Lakh)
-                </p>
-                <p
-                  className={`font-semibold ${
-                    landSuggestion.canAfford ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {landSuggestion.canAfford
-                    ? `✅ You can afford 1 acre! Remaining Budget: ₹${landSuggestion.remainingBudget.toLocaleString()}`
-                    : `❌ Exceeds your budget by ₹${(-landSuggestion.remainingBudget).toLocaleString()}`}
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+        {landSuggestion && (
+          <div className="mt-6 bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] p-6 rounded-xl shadow-lg border border-[#8A2BE2]">
+            {typeof landSuggestion === "string" ? (
+              <p className="text-red-400 text-center font-medium">
+                {landSuggestion}
+              </p>
+            ) : (
+              <>
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  {landSuggestion.location} - Investment Details
+                </h3>
+                <div className="text-gray-200 space-y-2">
+                  <p>
+                    <span className="font-semibold">Avg Price:</span> ₹
+                    {landSuggestion.avgPrice.toLocaleString()}/sq.ft
+                  </p>
+                  <p>
+                    <span className="font-semibold">Price Range:</span>{" "}
+                    {landSuggestion.range}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Price per Acre:</span> ₹
+                    {landSuggestion.pricePerAcre.toLocaleString()}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Budget:</span> ₹1,000,000
+                  </p>
+                  <p
+                    className={`font-semibold ${
+                      landSuggestion.canAfford ? "text-green-400" : "text-red-400"
+                    }`}
+                  >
+                    {landSuggestion.canAfford
+                      ? `✅ Affordable! Remaining: ₹${landSuggestion.remainingBudget.toLocaleString()}`
+                      : `❌ Over Budget by ₹${(-landSuggestion.remainingBudget).toLocaleString()}`}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

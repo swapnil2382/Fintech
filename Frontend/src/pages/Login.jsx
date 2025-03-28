@@ -17,7 +17,7 @@ const Login = () => {
     try {
       await login(formData.email, formData.password);
       toast.success("Login successful!");
-      navigate("/Home"); // ✅ Redirects to /dashboard after login
+      navigate("/Home"); // ✅ Redirect to /Home after login
     } catch (error) {
       toast.error("Invalid email or password");
     }
@@ -26,38 +26,50 @@ const Login = () => {
   return (
     <div className="flex h-screen bg-black text-white">
       {/* Left Section - Login Form */}
-      <div className="w-1/2 flex flex-col items-center justify-center p-12">
-        <form onSubmit={handleSubmit} className="bg-blue-950 p-8 rounded-lg shadow-lg w-96">
-          <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-          
+      <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-12">
+        <form onSubmit={handleSubmit} className="bg-blue-950 p-8 rounded-lg shadow-lg w-full max-w-md">
+          <h2 className="text-3xl font-bold mb-6 text-center text-blue-400">Login</h2>
+
+          {/* Email Input */}
           <input
             type="email"
             name="email"
             placeholder="Email"
             onChange={handleChange}
-            className="border p-3 w-full rounded bg-gray-800 mb-4"
+            className="border p-3 w-full rounded bg-gray-800 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-600"
             required
           />
+          
+          {/* Password Input */}
           <input
             type="password"
             name="password"
             placeholder="Password"
             onChange={handleChange}
-            className="border p-3 w-full rounded bg-gray-800 mb-6"
+            className="border p-3 w-full rounded bg-gray-800 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-600"
             required
           />
           
-          <button type="submit" className="bg-blue-900 w-full py-2 rounded text-white font-semibold hover:bg-green-600 transition">
+          {/* Submit Button */}
+          <button type="submit" className="bg-blue-900 w-full py-2 rounded text-white font-semibold hover:bg-green-600 transition duration-300">
             Login
           </button>
+
+          {/* Don't have an account? Register Link */}
+          <p className="mt-4 text-center text-gray-300">
+            Don't have an account?{" "}
+            <a href="/register" className="text-blue-400 hover:text-blue-600 font-semibold">
+              Register
+            </a>
+          </p>
         </form>
       </div>
 
       {/* Middle Divider */}
-      <div className="w-0.5 bg-gray-500 h-3/4 mt-24"></div>
+      <div className="hidden md:block w-0.5 bg-gray-500 h-3/4 mt-24"></div>
 
       {/* Right Section - Information */}
-      <div className=" flex flex-col items-center justify-center p-12 text-center">
+      <div className="hidden md:flex flex-col items-center justify-center p-12 text-center">
         <h2 className="text-3xl font-extrabold text-blue-400 mb-6">Why Login?</h2>
         <p className="text-lg text-gray-300 max-w-md">
           Access all our premium features by logging in.  

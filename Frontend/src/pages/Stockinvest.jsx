@@ -34,7 +34,7 @@ const StocksInvest = () => {
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [selectedStock, setSelectedStock] = useState(null);
   const [selectedBankAccountId, setSelectedBankAccountId] = useState("");
-  const [purchasedStocks, setPurchasedStocks] = useState([]); // Store purchased stocks
+  const [purchasedStocks, setPurchasedStocks] = useState([]);
 
   const API_KEY = "V7XGVH9WBWY8A1PE";
 
@@ -44,14 +44,11 @@ const StocksInvest = () => {
       const response = await axios.get(
         "https://api.frankfurter.app/latest?from=USD&to=INR"
       );
-      const rate = response.data.rates.INR;
-      setExchangeRate(rate);
+      setExchangeRate(response.data.rates.INR);
     } catch (err) {
       console.error("Error fetching exchange rate:", err);
       setExchangeRate(83.5);
-      setError(
-        "Failed to fetch exchange rate. Using fallback rate of 1 USD = 83.5 INR."
-      );
+      setError("Using fallback exchange rate: 1 USD = 83.5 INR.");
     }
   };
 
@@ -94,11 +91,7 @@ const StocksInvest = () => {
   }, []);
 
   const fetchStockSearch = async (query) => {
-    if (!query) return;
-    if (!exchangeRate) {
-      setError("Exchange rate not available. Please try again later.");
-      return;
-    }
+    if (!query || !exchangeRate) return;
     setLoading(true);
     setChartData({});
     try {
@@ -125,11 +118,9 @@ const StocksInvest = () => {
         if (i < formattedStocks.length - 1)
           await new Promise((resolve) => setTimeout(resolve, 15000));
       }
-
-      setStocks(stocksWithData);
       setError(null);
     } catch (err) {
-      setError("Failed to fetch stock data or suggestions.");
+      setError("Failed to fetch stock data.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -142,8 +133,7 @@ const StocksInvest = () => {
         `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${API_KEY}`
       );
       const priceUSD = response.data["Global Quote"]["05. price"];
-      const priceINR = (parseFloat(priceUSD) * exchangeRate).toFixed(2);
-      return priceINR;
+      return (parseFloat(priceUSD) * exchangeRate).toFixed(2);
     } catch (err) {
       console.error(`Error fetching price for ${symbol}:`, err);
       return null;
@@ -158,68 +148,33 @@ const StocksInvest = () => {
       const timeSeries = response.data["Time Series (Daily)"];
       if (!timeSeries) return null;
 
-      const pricesUSD = Object.values(timeSeries)
+      const pricesINR = Object.values(timeSeries)
         .slice(0, 5)
-        .map((day) => parseFloat(day["4. close"]));
-      const pricesINR = pricesUSD.map((price) => price * exchangeRate);
+        .map((day) => parseFloat(day["4. close"]) * exchangeRate);
       const volumes = Object.values(timeSeries)
         .slice(0, 5)
         .map((day) => parseFloat(day["5. volume"]));
 
       const avgPrice = pricesINR.reduce((a, b) => a + b, 0) / pricesINR.length;
       const volatility = Math.max(...pricesINR) - Math.min(...pricesINR);
-      const trend =
-        pricesINR[0] > pricesINR[pricesINR.length - 1] ? "up" : "down";
-      const priceVsAvg = pricesINR[0] > avgPrice ? "above" : "below";
+      const trend = pricesINR[0] > pricesINR[pricesINR.length - 1] ? "up" : "down";
       const volumeChange =
-        (volumes[0] - volumes[volumes.length - 1]) /
-        volumes[volumes.length - 1];
+        (volumes[0] - volumes[volumes.length - 1]) / volumes[volumes.length - 1];
 
       let recommendation, reason, risk;
-      if (
-        trend === "up" &&
-        volatility < 10 * exchangeRate &&
-        volumeChange > 0.1
-      ) {
+      if (trend === "up" && volatility < 10 * exchangeRate && volumeChange > 0.1) {
         recommendation = "Strong Buy";
-        reason =
-          "Consistent upward trend with low volatility and increasing volume.";
+        reason = "Upward trend with low volatility and increasing volume.";
         risk = "Low";
-      } else if (
-        trend === "up" &&
-        volatility < 15 * exchangeRate &&
-        priceVsAvg === "above"
-      ) {
-        recommendation = "Buy";
-        reason = "Moderate upward trend with prices above 5-day average.";
-        risk = "Low to Medium";
-      } else if (
-        trend === "down" &&
-        volatility > 20 * exchangeRate &&
-        volumeChange < -0.2
-      ) {
-        recommendation = "Strong Avoid";
-        reason =
-          "Sharp downward trend with high volatility and declining volume.";
-        risk = "High";
-      } else if (trend === "down" && priceVsAvg === "below") {
+      } else if (trend === "down" && volatility > 20 * exchangeRate) {
         recommendation = "Avoid";
-        reason = "Downward trend with prices below 5-day average.";
-        risk = "Medium to High";
-      } else if (volatility > 25 * exchangeRate) {
-        recommendation = "Hold";
-        reason = "High volatility; monitor for stabilization.";
+        reason = "Downward trend with high volatility.";
         risk = "High";
-      } else if (trend === "up" && volatility > 15 * exchangeRate) {
-        recommendation = "Cautious Buy";
-        reason = "Upward trend with significant volatility.";
-        risk = "Medium to High";
       } else {
-        recommendation = "Neutral";
-        reason = "No clear trend; further analysis needed.";
+        recommendation = "Hold";
+        reason = "No clear trend.";
         risk = "Medium";
       }
-
       return { recommendation, reason, risk };
     } catch (err) {
       console.error(`Error fetching suggestion for ${symbol}:`, err);
@@ -236,10 +191,9 @@ const StocksInvest = () => {
       if (!timeSeries) return null;
 
       const labels = Object.keys(timeSeries).slice(0, 7).reverse();
-      const pricesUSD = labels.map((date) =>
-        parseFloat(timeSeries[date]["4. close"])
+      const pricesINR = labels.map((date) =>
+        (parseFloat(timeSeries[date]["4. close"]) * exchangeRate).toFixed(2)
       );
-      const pricesINR = pricesUSD.map((price) => price * exchangeRate);
 
       return {
         labels,
@@ -247,8 +201,8 @@ const StocksInvest = () => {
           {
             label: `${symbol} Price (₹)`,
             data: pricesINR,
-            borderColor: "#3B82F6",
-            backgroundColor: "rgba(59, 130, 246, 0.2)",
+            borderColor: "#8A2BE2",
+            backgroundColor: "rgba(138, 43, 226, 0.2)",
             fill: false,
           },
         ],
@@ -285,7 +239,6 @@ const StocksInvest = () => {
         }
       );
 
-      // Update the bank account balance in the UI
       setBankAccounts(
         bankAccounts.map((account) =>
           account._id === selectedBankAccountId
@@ -293,16 +246,11 @@ const StocksInvest = () => {
             : account
         )
       );
-
-      // Refresh purchased stocks
       await fetchPurchasedStocks();
-
       setShowBuyModal(false);
       setSelectedBankAccountId("");
       setSelectedStock(null);
-      alert(
-        `Successfully purchased ${selectedStock.name} (${selectedStock.symbol}) for ₹${selectedStock.price}`
-      );
+      alert(`Successfully purchased ${selectedStock.name}!`);
     } catch (error) {
       alert("Error purchasing stock: " + error.response?.data?.error);
     }
@@ -317,37 +265,24 @@ const StocksInvest = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        position: "top",
-        labels: { color: "#FFFFFF" },
-      },
+      legend: { position: "top", labels: { color: "#FFFFFF" } },
       title: {
         display: true,
         text: "Stock Price (Last 7 Days) in ₹",
         color: "#FFFFFF",
         font: { size: 16 },
       },
-      tooltip: {
-        backgroundColor: "#1F2937",
-        callbacks: {
-          label: (context) => `₹${context.parsed.y.toFixed(2)}`,
-        },
-      },
+      tooltip: { backgroundColor: "#4B0082" },
     },
     scales: {
       x: { ticks: { color: "#D1D5DB" } },
-      y: {
-        ticks: {
-          color: "#D1D5DB",
-          callback: (value) => `₹${value.toFixed(2)}`,
-        },
-      },
+      y: { ticks: { color: "#D1D5DB" } },
     },
   };
 
   return (
-    <div className="p-6 bg-black min-h-screen font-sans text-white">
-      <h2 className="text-4xl font-extrabold text-blue-400 mb-8 text-center tracking-tight">
+    <div className="min-h-screen bg-gradient-to-br from-[#1A1A1A] to-[#4B0082] p-6 text-white font-sans">
+      <h2 className="text-4xl font-extrabold text-[#8A2BE2] mb-8 text-center tracking-tight drop-shadow-md">
         Stocks Invest Dashboard
       </h2>
 
@@ -359,11 +294,11 @@ const StocksInvest = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search for a stock (e.g., AAPL, TSLA)"
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 transition duration-200"
+            className="w-full px-4 py-3 bg-[#3A3A3A] border border-[#8A2BE2] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#8A2BE2] text-white placeholder-gray-500 transition duration-200"
           />
           <button
             type="submit"
-            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
+            className="px-6 py-3 bg-[#8A2BE2] text-white font-semibold rounded-lg shadow-md hover:bg-[#6A0DAD] transition duration-200"
           >
             Search
           </button>
@@ -371,38 +306,33 @@ const StocksInvest = () => {
       </form>
 
       {loading && (
-        <p className="text-center text-gray-400 text-lg">Loading...</p>
+        <p className="text-center text-gray-400 text-lg animate-pulse">Loading...</p>
       )}
       {error && (
-        <p className="text-center text-red-500 text-lg font-medium">{error}</p>
+        <p className="text-center text-red-400 text-lg font-medium">{error}</p>
       )}
 
       {/* Purchased Stocks */}
       <div className="mb-8">
-        <h3 className="text-2xl font-bold text-blue-300 mb-4">
+        <h3 className="text-2xl font-bold text-[#8A2BE2] mb-4 drop-shadow-sm">
           Your Portfolio
         </h3>
         {purchasedStocks.length > 0 ? (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {purchasedStocks.map((stock) => (
               <div
                 key={stock._id}
-                className="bg-gray-900 rounded-lg shadow-lg border border-gray-800 p-4 flex justify-between items-center"
+                className="bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] rounded-xl shadow-lg border border-[#8A2BE2] p-4"
               >
-                <div>
-                  <h4 className="text-lg font-semibold text-white">
-                    {stock.name}
-                  </h4>
-                  <p className="text-gray-400">Symbol: {stock.symbol}</p>
-                  <p className="text-gray-400">Quantity: {stock.quantity}</p>
-                  <p className="text-gray-400">
-                    Purchase Price: ₹{stock.purchasePrice.toFixed(2)}
-                  </p>
-                  <p className="text-gray-400">
-                    Purchase Date:{" "}
-                    {new Date(stock.purchaseDate).toLocaleDateString()}
-                  </p>
-                </div>
+                <h4 className="text-lg font-semibold text-white">{stock.name}</h4>
+                <p className="text-gray-300">Symbol: {stock.symbol}</p>
+                <p className="text-gray-300">Quantity: {stock.quantity}</p>
+                <p className="text-gray-300">
+                  Purchase Price: ₹{stock.purchasePrice.toFixed(2)}
+                </p>
+                <p className="text-gray-300">
+                  Date: {new Date(stock.purchaseDate).toLocaleDateString()}
+                </p>
               </div>
             ))}
           </div>
@@ -415,7 +345,7 @@ const StocksInvest = () => {
 
       {/* Stock Search Results */}
       <div className="mb-8">
-        <h3 className="text-2xl font-bold text-blue-300 mb-4">
+        <h3 className="text-2xl font-bold text-[#8A2BE2] mb-4 drop-shadow-sm">
           Search Results
         </h3>
         {stocks.length > 0 ? (
@@ -423,54 +353,46 @@ const StocksInvest = () => {
             {stocks.map((stock, index) => (
               <div
                 key={stock.symbol}
-                className="bg-gray-900 rounded-xl shadow-lg border border-gray-800 h-[35vh] flex flex-row overflow-hidden"
+                className="bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] rounded-xl shadow-lg border border-[#8A2BE2] h-[40vh] flex flex-col md:flex-row overflow-hidden"
               >
                 {index % 2 === 0 ? (
                   <>
                     {/* Left: Info */}
-                    <div className="w-1/2 p-6 flex flex-col justify-between">
+                    <div className="w-full md:w-1/2 p-6 flex flex-col justify-between">
                       <div className="space-y-2">
-                        <h4 className="text-xl font-semibold text-white">
-                          {stock.name}
-                        </h4>
-                        <p className="text-gray-400">Symbol: {stock.symbol}</p>
-                        <p className="text-blue-300 font-medium">
+                        <h4 className="text-xl font-semibold text-white">{stock.name}</h4>
+                        <p className="text-gray-300">Symbol: {stock.symbol}</p>
+                        <p className="text-[#8A2BE2] font-medium">
                           Price: ₹{stock.price || "Fetching..."}
                         </p>
                         {stock.suggestion ? (
-                          <div className="text-sm">
-                            <p className="text-gray-300">
-                              <strong className="text-blue-400">
-                                Recommendation:
-                              </strong>{" "}
+                          <div className="text-sm text-gray-200">
+                            <p>
+                              <strong className="text-[#8A2BE2]">Recommendation:</strong>{" "}
                               <span
                                 className={
-                                  stock.suggestion.recommendation.includes(
-                                    "Buy"
-                                  )
-                                    ? "text-blue-500"
-                                    : stock.suggestion.recommendation.includes(
-                                        "Avoid"
-                                      )
-                                    ? "text-red-500"
-                                    : "text-gray-400"
+                                  stock.suggestion.recommendation.includes("Buy")
+                                    ? "text-green-400"
+                                    : stock.suggestion.recommendation.includes("Avoid")
+                                    ? "text-red-400"
+                                    : "text-yellow-400"
                                 }
                               >
                                 {stock.suggestion.recommendation}
                               </span>
                             </p>
-                            <p className="text-gray-300">
-                              <strong className="text-blue-400">Reason:</strong>{" "}
+                            <p>
+                              <strong className="text-[#8A2BE2]">Reason:</strong>{" "}
                               {stock.suggestion.reason}
                             </p>
-                            <p className="text-gray-300">
-                              <strong className="text-blue-400">Risk:</strong>{" "}
+                            <p>
+                              <strong className="text-[#8A2BE2]">Risk:</strong>{" "}
                               <span
                                 className={
                                   stock.suggestion.risk === "Low"
-                                    ? "text-blue-500"
+                                    ? "text-green-400"
                                     : stock.suggestion.risk === "High"
-                                    ? "text-red-500"
+                                    ? "text-red-400"
                                     : "text-yellow-400"
                                 }
                               >
@@ -479,92 +401,72 @@ const StocksInvest = () => {
                             </p>
                           </div>
                         ) : (
-                          <p className="text-gray-400 text-sm">
-                            Loading suggestion...
-                          </p>
+                          <p className="text-gray-400 text-sm">Loading suggestion...</p>
                         )}
                       </div>
                       <button
                         onClick={() => handleBuyStock(stock)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 text-sm font-medium self-start"
+                        className="px-4 py-2 bg-[#8A2BE2] text-white rounded-lg hover:bg-[#6A0DAD] transition duration-200 text-sm font-medium shadow-md"
                         disabled={!stock.price}
                       >
                         Buy
                       </button>
                     </div>
                     {/* Right: Graph */}
-                    <div className="w-1/2 p-4">
+                    <div className="w-full md:w-1/2 p-4">
                       {chartData[stock.symbol] ? (
-                        <Line
-                          data={chartData[stock.symbol]}
-                          options={chartOptions}
-                        />
+                        <Line data={chartData[stock.symbol]} options={chartOptions} />
                       ) : (
-                        <p className="text-gray-400 text-center">
-                          Loading chart...
-                        </p>
+                        <p className="text-gray-400 text-center">Loading chart...</p>
                       )}
                     </div>
                   </>
                 ) : (
                   <>
                     {/* Left: Graph */}
-                    <div className="w-1/2 p-4">
+                    <div className="w-full md:w-1/2 p-4">
                       {chartData[stock.symbol] ? (
-                        <Line
-                          data={chartData[stock.symbol]}
-                          options={chartOptions}
-                        />
+                        <Line data={chartData[stock.symbol]} options={chartOptions} />
                       ) : (
-                        <p className="text-gray-400 text-center">
-                          Loading chart...
-                        </p>
+                        <p className="text-gray-400 text-center">Loading chart...</p>
                       )}
                     </div>
                     {/* Right: Info */}
-                    <div className="w-1/2 p-6 flex flex-col justify-between">
+                    <div className="w-full md:w-1/2 p-6 flex flex-col justify-between">
                       <div className="space-y-2">
-                        <h4 className="text-xl font-semibold text-white">
-                          {stock.name}
-                        </h4>
-                        <p className="text-gray-400">Symbol: {stock.symbol}</p>
-                        <p className="text-blue-300 font-medium">
+                        <h4 className="text-xl font-semibold text-white">{stock.name}</h4>
+                        <p className="text-gray-300">Symbol: {stock.symbol}</p>
+                        <p className="text-[#8A2BE2] font-medium">
                           Price: ₹{stock.price || "Fetching..."}
                         </p>
                         {stock.suggestion ? (
-                          <div className="text-sm">
-                            <p className="text-gray-300">
-                              <strong className="text-blue-400">
-                                Recommendation:
-                              </strong>{" "}
+                          <div className="text-sm text-gray-200">
+                            <p>
+                              <strong className="text-[#8A2BE2]">Recommendation:</strong>{" "}
                               <span
                                 className={
-                                  stock.suggestion.recommendation.includes(
-                                    "Buy"
-                                  )
-                                    ? "text-blue-500"
-                                    : stock.suggestion.recommendation.includes(
-                                        "Avoid"
-                                      )
-                                    ? "text-red-500"
-                                    : "text-gray-400"
+                                  stock.suggestion.recommendation.includes("Buy")
+                                    ? "text-green-400"
+                                    : stock.suggestion.recommendation.includes("Avoid")
+                                    ? "text-red-400"
+                                    : "text-yellow-400"
                                 }
                               >
                                 {stock.suggestion.recommendation}
                               </span>
                             </p>
-                            <p className="text-gray-300">
-                              <strong className="text-blue-400">Reason:</strong>{" "}
+                            <p>
+                              <strong className="text-[#8A2BE2]">Reason:</strong>{" "}
                               {stock.suggestion.reason}
                             </p>
-                            <p className="text-gray-300">
-                              <strong className="text-blue-400">Risk:</strong>{" "}
+                            <p>
+                              <strong className="text-[#8A2BE2]">Risk:</strong>{" "}
                               <span
                                 className={
                                   stock.suggestion.risk === "Low"
-                                    ? "text-blue-500"
+                                    ? "text-green-400"
                                     : stock.suggestion.risk === "High"
-                                    ? "text-red-500"
+                                    ? "text-red-400"
                                     : "text-yellow-400"
                                 }
                               >
@@ -573,14 +475,12 @@ const StocksInvest = () => {
                             </p>
                           </div>
                         ) : (
-                          <p className="text-gray-400 text-sm">
-                            Loading suggestion...
-                          </p>
+                          <p className="text-gray-400 text-sm">Loading suggestion...</p>
                         )}
                       </div>
                       <button
                         onClick={() => handleBuyStock(stock)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 text-sm font-medium self-start"
+                        className="px-4 py-2 bg-[#8A2BE2] text-white rounded-lg hover:bg-[#6A0DAD] transition duration-200 text-sm font-medium shadow-md"
                         disabled={!stock.price}
                       >
                         Buy
@@ -600,21 +500,21 @@ const StocksInvest = () => {
 
       {/* Buy Stock Modal */}
       {showBuyModal && selectedStock && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full border border-gray-200">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center">
+          <div className="bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] p-6 rounded-xl shadow-lg border border-[#8A2BE2] max-w-md w-full">
+            <h3 className="text-2xl font-bold text-white mb-4 text-center drop-shadow-sm">
               Buy {selectedStock.name} ({selectedStock.symbol})
             </h3>
-            <p className="text-gray-700 mb-4">Price: ₹{selectedStock.price}</p>
+            <p className="text-gray-300 mb-4">Price: ₹{selectedStock.price}</p>
             <form onSubmit={confirmBuyStock}>
               <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">
+                <label className="block text-white font-medium mb-2">
                   Select Bank Account
                 </label>
                 <select
                   value={selectedBankAccountId}
                   onChange={(e) => setSelectedBankAccountId(e.target.value)}
-                  className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 bg-[#3A3A3A] border border-[#8A2BE2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8A2BE2] text-white"
                   required
                 >
                   <option value="">-- Select a bank account --</option>
@@ -628,7 +528,7 @@ const StocksInvest = () => {
               <div className="flex justify-end gap-4">
                 <button
                   type="submit"
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-200"
+                  className="bg-[#8A2BE2] text-white px-6 py-2 rounded-lg hover:bg-[#6A0DAD] transition duration-200 shadow-md"
                 >
                   Confirm Purchase
                 </button>
@@ -639,7 +539,7 @@ const StocksInvest = () => {
                     setSelectedBankAccountId("");
                     setSelectedStock(null);
                   }}
-                  className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
+                  className="bg-[#4B0082] text-white px-6 py-2 rounded-lg hover:bg-[#2A004B] transition duration-200 shadow-md"
                 >
                   Cancel
                 </button>

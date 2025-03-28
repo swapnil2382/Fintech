@@ -5,7 +5,7 @@ import { useContext } from "react";
 import MainHome from "./pages/MainHome";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import { HomePage, AboutPage, ServicesPage, SecurityPage } from "./pages/Homepage"; // Import named exports
+import { HomePage, AboutPage, ServicesPage, SecurityPage } from "./pages/HomePage"; // Import named exports
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {

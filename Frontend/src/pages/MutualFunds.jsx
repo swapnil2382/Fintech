@@ -9,7 +9,6 @@ const MutualFunds = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch mutual fund data from MFAPI.in
   const fetchFundData = async (code) => {
     setLoading(true);
     try {
@@ -17,9 +16,8 @@ const MutualFunds = () => {
       const data = response.data;
       setFundData(data);
 
-      // Calculate suggestion based on latest NAV and mock budget
-      const latestNav = parseFloat(data.data[0].nav); // Latest NAV
-      const mockBudget = 100000; // ₹1 lakh
+      const latestNav = parseFloat(data.data[0].nav);
+      const mockBudget = 100000;
       const unitsAffordable = mockBudget / latestNav;
       const suggestionText = `
         Scheme: ${data.meta.scheme_name}
@@ -30,12 +28,9 @@ const MutualFunds = () => {
         Type: ${data.meta.scheme_type}
       `;
       setSuggestion(suggestionText);
-      setLoading(false);
     } catch (error) {
-      console.error("Error fetching mutual fund data:", error);
-      setSuggestion(
-        "Unable to fetch data. Please check the scheme code and try again."
-      );
+      setSuggestion("Invalid scheme code or data unavailable.");
+    } finally {
       setLoading(false);
     }
   };
@@ -48,58 +43,59 @@ const MutualFunds = () => {
   };
 
   return (
-    <div className="p-6 bg-black min-h-screen text-white py-52">
-      <h2 className="text-3xl font-bold mb-6 text-center text-white">
-        Invest in Mutual Funds
-      </h2>
-      <p className="text-gray-400 mb-6 text-center">
-        Enter a mutual fund scheme code to check its details and investment
-        potential. (e.g., 120594 for Axis Long Term Equity Fund - Direct Growth)
-      </p>
+    <div className="min-h-screen bg-gradient-to-br from-[#1A1A1A] to-[#4B0082] p-6 text-white flex items-center justify-center">
+      <div className="max-w-md w-full">
+        <h2 className="text-4xl font-extrabold text-center mb-6 text-white drop-shadow-md">
+          Mutual Funds
+        </h2>
+        <p className="text-center mb-8 text-gray-300">
+          Explore mutual fund investment options.
+        </p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-md"
-      >
-        <div className="mb-4">
-          <label className="block text-white font-medium mb-2">
-            Mutual Fund Scheme Code
-          </label>
-          <input
-            type="text"
-            value={schemeCode}
-            onChange={(e) => setSchemeCode(e.target.value)}
-            className="w-full border border-gray-600 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g., 120594"
-            required
-          />
-        </div>
-        <div className="flex justify-end gap-4">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-            disabled={loading}
-          >
-            {loading ? "Loading..." : "Check Fund"}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/investments")}
-            className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
-          >
-            Back
-          </button>
-        </div>
-      </form>
+        <form
+          onSubmit={handleSubmit}
+          className="bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] p-6 rounded-xl shadow-lg border border-[#8A2BE2]"
+        >
+          <div className="mb-6">
+            <label className="block text-white font-semibold mb-2">
+              Scheme Code (e.g., 120594)
+            </label>
+            <input
+              type="text"
+              value={schemeCode}
+              onChange={(e) => setSchemeCode(e.target.value)}
+              className="w-full p-3 bg-[#3A3A3A] border border-[#8A2BE2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8A2BE2] text-white placeholder-gray-500"
+              placeholder="Enter scheme code"
+              required
+            />
+          </div>
+          <div className="flex justify-end gap-4">
+            <button
+              type="submit"
+              className="bg-[#8A2BE2] text-white px-6 py-2 rounded-lg hover:bg-[#6A0DAD] transition duration-300 shadow-md"
+              disabled={loading}
+            >
+              {loading ? "Loading..." : "Check Fund"}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/investments")}
+              className="bg-[#4B0082] text-white px-6 py-2 rounded-lg hover:bg-[#2A004B] transition duration-300 shadow-md"
+            >
+              Back
+            </button>
+          </div>
+        </form>
 
-      {suggestion && (
-        <div className="mt-6 max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-md">
-          <h3 className="text-xl font-semibold text-white mb-2">
-            Investment Suggestion
-          </h3>
-          <p className="text-gray-300 whitespace-pre-line">{suggestion}</p>
-        </div>
-      )}
+        {suggestion && (
+          <div className="mt-6 bg-gradient-to-br from-[#2A2A2A] to-[#6A0DAD] p-6 rounded-xl shadow-lg border border-[#8A2BE2]">
+            <h3 className="text-xl font-semibold text-white mb-2 text-center">
+              Investment Suggestion
+            </h3>
+            <p className="text-gray-200 whitespace-pre-line">{suggestion}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
