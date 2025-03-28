@@ -8,7 +8,7 @@ const Chat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
-  const token = localStorage.getItem("token"); // Assuming token is stored here
+  const token = localStorage.getItem("token");
 
   const handleSend = async () => {
     if (!message.trim()) return;
@@ -23,19 +23,17 @@ const Chat = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const aiTimestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      setMessages([
-        ...messages,
-        { sender: "user", text: message, timestamp },
+      setMessages((prev) => [
+        ...prev,
         { sender: "ai", text: res.data.reply, timestamp: aiTimestamp },
       ]);
       setIsTyping(false);
     } catch (error) {
       console.error("Error:", error);
       const aiTimestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      setMessages([
-        ...messages,
-        { sender: "user", text: message, timestamp },
-        { sender: "ai", text: "Failed to get response", timestamp: aiTimestamp },
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: "Unable to process request", timestamp: aiTimestamp },
       ]);
       setIsTyping(false);
     }
@@ -51,19 +49,17 @@ const Chat = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const aiTimestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      setMessages([
-        ...messages,
-        { sender: "user", text: displayText, timestamp },
+      setMessages((prev) => [
+        ...prev,
         { sender: "ai", text: res.data.reply, timestamp: aiTimestamp },
       ]);
       setIsTyping(false);
     } catch (error) {
       console.error("Error:", error);
       const aiTimestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      setMessages([
-        ...messages,
-        { sender: "user", text: displayText, timestamp },
-        { sender: "ai", text: "Failed to get response", timestamp: aiTimestamp },
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: "Unable to process request", timestamp: aiTimestamp },
       ]);
       setIsTyping(false);
     }
@@ -101,44 +97,52 @@ const Chat = () => {
       {/* Chat Toggle Button */}
       <button
         onClick={() => setIsChatOpen(!isChatOpen)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-green-600 to-teal-600 text-white px-6 py-3 rounded-full shadow-lg hover:from-green-700 hover:to-teal-700 transition-all duration-300 flex items-center justify-center text-lg font-semibold z-50"
+        className="fixed bottom-6 right-6 bg-purple-600 text-white p-3 rounded-full shadow-lg hover:bg-purple-700 transition-all duration-300 z-50"
       >
-        {isChatOpen ? "✖" : "🤖"}
+        {isChatOpen ? (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+        )}
       </button>
 
       {/* Chatbox */}
       {isChatOpen && (
-        <div className="fixed bottom-20 right-6 w-96 max-w-full h-[600px] bg-white rounded-xl shadow-xl border border-gray-100 flex flex-col overflow-hidden z-40">
+        <div className="fixed bottom-20 right-6 w-96 max-w-full h-[600px] bg-gradient-to-br from-black to-purple-900 rounded-lg shadow-xl flex flex-col overflow-hidden z-40">
           {/* Header */}
-          <div className="bg-gradient-to-r from-green-700 to-teal-700 text-white p-4 flex justify-between items-center rounded-t-xl">
-            <span className="text-lg font-semibold tracking-wide">Finance Buddy</span>
-            <div className="flex space-x-2">
+          <div className="bg-gradient-to-r from-purple-800 to-black text-white p-4 flex justify-between items-center">
+            <span className="text-lg font-semibold">Finance Buddy</span>
+            <div className="flex space-x-3">
               <button
                 onClick={() => setShowHelp(!showHelp)}
-                className="text-sm bg-green-800 hover:bg-green-900 text-white px-2 py-1 rounded-lg transition-all"
+                className="text-white hover:text-purple-300 text-sm transition-all"
               >
                 {showHelp ? "Hide" : "Help"}
               </button>
               <button
                 onClick={resetChat}
-                className="text-sm bg-green-800 hover:bg-green-900 text-white px-2 py-1 rounded-lg transition-all"
+                className="text-white hover:text-purple-300 text-sm transition-all"
               >
-                Reset
+                Clear
               </button>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-4">
+          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-opacity-80 bg-black">
             {messages.length === 0 && !showHelp && (
-              <div className="text-gray-700 text-sm">
-                <p className="font-medium mb-2">Your Financial Options:</p>
+              <div className="text-purple-300 text-sm">
+                <p className="font-medium mb-2">Quick Options:</p>
                 <div className="flex flex-wrap gap-2">
                   {options.map((option) => (
                     <button
                       key={option.intent}
                       onClick={() => handleOptionClick(option.intent, option.display)}
-                      className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-xs font-medium hover:bg-teal-200 transition-all shadow-sm"
+                      className="bg-purple-600 text-white px-3 py-1 rounded-md text-xs font-medium hover:bg-purple-700 transition-all"
                     >
                       {option.label}
                     </button>
@@ -147,9 +151,9 @@ const Chat = () => {
               </div>
             )}
             {showHelp && (
-              <div className="text-gray-700 text-sm bg-white p-3 rounded-lg shadow-sm">
-                <p className="font-medium mb-2">Quick Commands:</p>
-                <ul className="list-disc pl-4 space-y-1">
+              <div className="bg-gray-900 p-2 rounded-lg shadow-sm max-w-[75%] text-purple-300 text-xs">
+                <p className="font-medium mb-1">Commands:</p>
+                <ul className="list-disc pl-4">
                   {helpCommands.map((cmd, idx) => (
                     <li key={idx}>{cmd}</li>
                   ))}
@@ -159,40 +163,41 @@ const Chat = () => {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`max-w-[80%] p-3 rounded-xl text-sm shadow-md ${
+                className={`max-w-[75%] p-2 rounded-lg text-xs shadow-sm ${
                   msg.sender === "user"
-                    ? "bg-teal-100 text-teal-900 self-end ml-auto"
-                    : "bg-white text-gray-800 self-start border border-gray-100"
+                    ? "bg-purple-500 text-white ml-auto rounded-br-none"
+                    : "bg-gray-800 text-purple-200 rounded-bl-none"
                 }`}
               >
-                <div className="flex justify-between items-baseline">
-                  <span className="font-semibold">{msg.sender === "user" ? "You" : "AI"}</span>
-                  <span className="text-xs text-gray-500">{msg.timestamp}</span>
-                </div>
-                <p className="mt-1">{msg.text}</p>
+                <p>{msg.text}</p>
+                <span className="text-[10px] text-gray-400 block text-right mt-1">{msg.timestamp}</span>
               </div>
             ))}
             {isTyping && (
-              <div className="text-gray-500 text-xs italic animate-pulse">AI is typing...</div>
+              <div className="bg-gray-800 p-2 rounded-lg max-w-[75%] text-purple-400 text-xs italic flex items-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-1 animate-bounce"></span>
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-1 animate-bounce delay-100"></span>
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-1 animate-bounce delay-200"></span>
+              </div>
             )}
           </div>
 
           {/* Input */}
-          <div className="p-3 bg-gray-100 border-t border-gray-200 flex items-center">
+          <div className="p-3 bg-gray-900 flex items-center">
             <input
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Ask or type a command..."
-              className="flex-1 p-2 bg-white rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+              placeholder="Type a message..."
+              className="flex-1 p-3 bg-gray-800 text-white rounded-full text-sm border border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all"
               onKeyPress={(e) => e.key === "Enter" && handleSend()}
             />
             <button
               onClick={handleSend}
-              className="ml-2 bg-gradient-to-r from-green-600 to-teal-600 text-white p-2 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all shadow-md"
+              className="ml-2 bg-purple-600 text-white p-3 rounded-full hover:bg-purple-700 transition-all"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
               </svg>
             </button>
           </div>

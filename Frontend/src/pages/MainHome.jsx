@@ -4,7 +4,6 @@ import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate, Routes, Route } from "react-router-dom";
 import { FaBell } from "react-icons/fa";
 import Chat from "./Chat";
-import Fraud from "./Fraud";
 import Investments from "./Investments";
 import Goals from "./Goals";
 import BankAccounts from "./BankAccounts";
@@ -44,13 +43,14 @@ const MainHome = () => {
   ];
 
   const navLinks = [
-    { to: "/home/fraud", label: "Fraud Alerts" },
     { to: "/home/investments", label: "Investments" },
     { to: "/home/goals", label: "Goals" },
     { to: "/home/loan", label: "Loan Manager" },
     { to: "/home/finance", label: "Financial Health" },
     { to: "/home/insights", label: "Financial Insights" },
     { to: "/home/tax-filing", label: "Taxes Invoice" },
+    
+
   ];
 
   return (
@@ -131,7 +131,6 @@ const MainHome = () => {
                 }
               />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/fraud" element={<Fraud />} />
               <Route path="/investments" element={<Investments />} />
               <Route path="/goals" element={<Goals />} />
               <Route path="/bank-accounts" element={<BankAccounts />} />
